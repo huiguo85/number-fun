@@ -38,6 +38,7 @@
       transition: opacity 0.3s ease;
     }
     .screen.hidden { opacity: 0; pointer-events: none; }
+    .hidden { display: none !important; }
 
     /* ── DIFFICULTY SCREEN ── */
     #difficulty { background: linear-gradient(160deg, #E8D5FF 0%, #C9A7FF 100%); }
@@ -149,7 +150,7 @@
     .mode-label { font-size: 15px; font-weight: 900; color: white; text-shadow: 1px 1px 0 rgba(0,0,0,0.2); }
 
     /* ── SHOP SCREEN ── */
-    #shop { background: linear-gradient(160deg, #FFF8E1 0%, #FFD54F 100%); justify-content: flex-start; padding-top: 28px; gap: 14px; }
+    #shop { background: linear-gradient(160deg, #FFF8E1 0%, #FFD54F 100%); justify-content: flex-start; padding-top: 28px; gap: 10px; overflow-y: auto; }
 
     .shop-header {
       width: 100%; display: flex; align-items: center; justify-content: space-between;
@@ -179,6 +180,42 @@
     }
 
     .shop-subtitle { font-size: 16px; font-weight: 700; color: #9E6700; }
+
+    .shop-tabs {
+      display: flex; gap: 8px; width: 100%;
+    }
+    .shop-tab {
+      flex: 1; padding: 10px 0; border-radius: 18px; border: 3px solid #222;
+      font-family: inherit; font-size: 16px; font-weight: 900; cursor: pointer;
+      background: white; color: #666; box-shadow: 0 4px 0 rgba(0,0,0,0.13);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .shop-tab.active { background: #FF9900; color: white; box-shadow: 0 4px 0 #c47000; }
+    .shop-tab:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.13); }
+
+    .acc-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%;
+    }
+    .acc-card {
+      background: white; border: 3.5px solid #222; border-radius: 18px;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 8px 4px 8px; gap: 4px; cursor: pointer;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.13);
+      transition: transform 0.1s, box-shadow 0.1s; position: relative;
+    }
+    .acc-card:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.13); }
+    .acc-card.selected { border-color: #06D6A0; box-shadow: 0 0 0 3px #06D6A0, 0 5px 0 #04A57E; background: #F0FFF9; }
+    .acc-card.locked { opacity: 0.7; cursor: default; }
+    .acc-card svg { width: 64px; height: 64px; }
+    .acc-name { font-size: 12px; font-weight: 900; color: #444; text-align: center; }
+    .acc-cost { font-size: 11px; font-weight: 800; color: #FF9900; }
+    .acc-owned { font-size: 11px; font-weight: 800; color: #06D6A0; }
+    .acc-lock { position: absolute; top: 4px; right: 6px; font-size: 14px; }
+
+    .home-avatar { position: relative; }
+    .diff-mascot  { position: relative; }
+    .acc-overlay { position: absolute; inset: 0; pointer-events: none; }
+    .acc-overlay svg { width: 100%; height: 100%; }
 
     .shop-timer {
       background: white; border: 3.5px solid #222; border-radius: 20px;
@@ -445,7 +482,6 @@
     </div>
 
     <div class="shop-title">Avatar Shop</div>
-    <div class="shop-subtitle">Pick your buddy!</div>
     <div class="shop-timer" id="shop-timer">
       <svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
         <circle cx="12" cy="13" r="9" fill="none" stroke="currentColor" stroke-width="2.5"/>
@@ -455,7 +491,12 @@
       <span id="shop-timer-text">1:00</span>
     </div>
 
+    <div class="shop-tabs">
+      <button class="shop-tab active" id="tab-buddies" onclick="switchShopTab('buddies')">🐾 Buddies</button>
+      <button class="shop-tab" id="tab-gear" onclick="switchShopTab('gear')">🎩 Gear</button>
+    </div>
     <div class="avatar-grid" id="avatar-grid"></div>
+    <div class="acc-grid hidden" id="acc-grid"></div>
   </div>
 
   <!-- PROBLEM SCREEN -->
@@ -733,6 +774,60 @@
     </svg>`,
   ];
 
+  const ACCESSORIES = [
+    { name: 'Party Hat', cost: 5, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="60,8 32,58 88,58" fill="#FF6B6B" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
+        <line x1="46" y1="34" x2="50" y2="26" stroke="#FFD166" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="57" y1="20" x2="61" y2="12" stroke="#7BCFFF" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="72" y1="34" x2="76" y2="26" stroke="#FFD166" stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="60" cy="58" rx="28" ry="8" fill="#FF9900" stroke="#222" stroke-width="2"/>
+        <circle cx="60" cy="8" r="5" fill="#FFD166" stroke="#222" stroke-width="1.5"/>
+      </svg>` },
+    { name: 'Shades', cost: 15, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <rect x="14" y="60" width="38" height="22" rx="11" fill="#1A1A1A" stroke="#222" stroke-width="2.5"/>
+        <rect x="68" y="60" width="38" height="22" rx="11" fill="#1A1A1A" stroke="#222" stroke-width="2.5"/>
+        <line x1="52" y1="71" x2="68" y2="71" stroke="#555" stroke-width="3" stroke-linecap="round"/>
+        <line x1="14" y1="69" x2="6" y2="63" stroke="#555" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="106" y1="69" x2="114" y2="63" stroke="#555" stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="33" cy="71" rx="14" ry="9" fill="#FF6B6B" opacity="0.3"/>
+        <ellipse cx="87" cy="71" rx="14" ry="9" fill="#FF6B6B" opacity="0.3"/>
+      </svg>` },
+    { name: 'Bow', cost: 30, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <path d="M60,28 C50,16 26,12 28,28 C30,42 52,33 60,28Z" fill="#FF6B9D" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M60,28 C70,16 94,12 92,28 C90,42 68,33 60,28Z" fill="#FF6B9D" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
+        <circle cx="60" cy="28" r="8" fill="#FF3D7F" stroke="#222" stroke-width="2"/>
+        <circle cx="60" cy="28" r="3.5" fill="#FFB6C1"/>
+      </svg>` },
+    { name: 'Crown', cost: 75, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18,58 L28,22 L60,44 L92,22 L102,58 Z" fill="#FFD700" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
+        <rect x="16" y="56" width="88" height="14" rx="5" fill="#FFC200" stroke="#222" stroke-width="2.5"/>
+        <circle cx="28" cy="22" r="6" fill="#FF4136" stroke="#222" stroke-width="1.5"/>
+        <circle cx="60" cy="44" r="6" fill="#7BCFFF" stroke="#222" stroke-width="1.5"/>
+        <circle cx="92" cy="22" r="6" fill="#FF4136" stroke="#222" stroke-width="1.5"/>
+      </svg>` },
+    { name: 'Wizard', cost: 150, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="60,4 30,70 90,70" fill="#7B52AB" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
+        <ellipse cx="60" cy="70" rx="36" ry="10" fill="#5B3A8A" stroke="#222" stroke-width="2.5"/>
+        <circle cx="47" cy="32" r="4" fill="#FFD700" opacity="0.95"/>
+        <circle cx="66" cy="18" r="3" fill="#FFD700" opacity="0.95"/>
+        <circle cx="73" cy="48" r="3.5" fill="#7BCFFF" opacity="0.95"/>
+        <path d="M38,54 Q44,46 50,54" fill="none" stroke="#FFD700" stroke-width="2.2" opacity="0.9"/>
+      </svg>` },
+    { name: 'Halo', cost: 300, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="60" cy="20" rx="36" ry="10" fill="none" stroke="#FFD700" stroke-width="7"/>
+        <ellipse cx="60" cy="18" rx="36" ry="10" fill="none" stroke="#FFF0A0" stroke-width="3.5" opacity="0.8"/>
+        <ellipse cx="60" cy="20" rx="36" ry="10" fill="none" stroke="#FFB800" stroke-width="2" opacity="0.5"/>
+      </svg>` },
+    { name: 'Wings', cost: 500, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <path d="M60,68 C44,52 6,56 8,76 C11,92 42,80 60,68Z" fill="#7CFC00" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M16,60 C9,44 22,32 36,52Z" fill="#7CFC00" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M24,54 C18,42 26,34 36,48Z" fill="#5DC600" opacity="0.7"/>
+        <path d="M60,68 C76,52 114,56 112,76 C109,92 78,80 60,68Z" fill="#7CFC00" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M104,60 C111,44 98,32 84,52Z" fill="#7CFC00" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M96,54 C102,42 94,34 84,48Z" fill="#5DC600" opacity="0.7"/>
+      </svg>` },
+  ];
+
   /* ════════════════════════════════
      GAME STATE
   ════════════════════════════════ */
@@ -748,6 +843,9 @@
   let score          = 0;
   let totalStars     = parseInt(localStorage.getItem('totalStars') || '0');
   let currentAvatarIdx = parseInt(localStorage.getItem('avatarIdx') || '0');
+  let currentAccIdx  = parseInt(localStorage.getItem('accIdx') || '-1');
+  let ownedAccs      = new Set(JSON.parse(localStorage.getItem('ownedAccs') || '[]'));
+  let currentShopTab = 'buddies';
   let correctAnswer  = 0;
   let currentCartoon = CARTOONS[0];
   let isProcessing   = false;
@@ -761,9 +859,10 @@
   }
 
   function refreshAvatarDisplays() {
-    const svg = AVATARS[currentAvatarIdx].svg;
-    document.getElementById('home-avatar-el').innerHTML  = svg;
-    document.getElementById('diff-mascot-el').innerHTML  = svg;
+    const avatarSvg = AVATARS[currentAvatarIdx].svg;
+    const accSvg = currentAccIdx >= 0 ? `<div class="acc-overlay">${ACCESSORIES[currentAccIdx].svg}</div>` : '';
+    document.getElementById('home-avatar-el').innerHTML = avatarSvg + accSvg;
+    document.getElementById('diff-mascot-el').innerHTML = avatarSvg + accSvg;
   }
 
   function updateShopBtn() {
@@ -825,9 +924,22 @@
 
   function renderShop() {
     document.getElementById('shop-total-stars').textContent = totalStars;
+    switchShopTab(currentShopTab);
+  }
+
+  function switchShopTab(tab) {
+    currentShopTab = tab;
+    document.getElementById('tab-buddies').classList.toggle('active', tab === 'buddies');
+    document.getElementById('tab-gear').classList.toggle('active', tab === 'gear');
+    document.getElementById('avatar-grid').classList.toggle('hidden', tab !== 'buddies');
+    document.getElementById('acc-grid').classList.toggle('hidden', tab !== 'gear');
+    if (tab === 'buddies') renderAvatarGrid();
+    else renderAccGrid();
+  }
+
+  function renderAvatarGrid() {
     const grid = document.getElementById('avatar-grid');
     grid.innerHTML = '';
-
     AVATARS.forEach((av, idx) => {
       const card = document.createElement('div');
       card.className = 'avatar-card' + (idx === currentAvatarIdx ? ' selected' : '');
@@ -843,11 +955,53 @@
     });
   }
 
+  function renderAccGrid() {
+    const grid = document.getElementById('acc-grid');
+    grid.innerHTML = '';
+    ACCESSORIES.forEach((acc, idx) => {
+      const owned = ownedAccs.has(idx);
+      const selected = idx === currentAccIdx;
+      const card = document.createElement('div');
+      card.className = 'acc-card' + (selected ? ' selected' : '') + (owned ? '' : ' locked');
+      card.innerHTML = acc.svg +
+        `<span class="acc-name">${acc.name}</span>` +
+        (owned
+          ? `<span class="acc-owned">${selected ? '✓ On' : 'Owned'}</span>`
+          : `<span class="acc-cost">⭐ ${acc.cost}</span><span class="acc-lock">🔒</span>`);
+      card.onclick = () => owned ? selectAccessory(idx) : buyAccessory(idx);
+      grid.appendChild(card);
+    });
+  }
+
+  function buyAccessory(idx) {
+    const acc = ACCESSORIES[idx];
+    if (totalStars < acc.cost) {
+      const card = document.getElementById('acc-grid').children[idx];
+      card.style.animation = 'none';
+      void card.offsetWidth;
+      card.style.animation = 'timerPulse 0.2s ease 3 alternate';
+      return;
+    }
+    totalStars -= acc.cost;
+    localStorage.setItem('totalStars', totalStars);
+    ownedAccs.add(idx);
+    localStorage.setItem('ownedAccs', JSON.stringify([...ownedAccs]));
+    selectAccessory(idx);
+  }
+
+  function selectAccessory(idx) {
+    currentAccIdx = (currentAccIdx === idx) ? -1 : idx;
+    localStorage.setItem('accIdx', currentAccIdx);
+    refreshAvatarDisplays();
+    renderAccGrid();
+    document.getElementById('shop-total-stars').textContent = totalStars;
+  }
+
   function selectAvatar(idx) {
     currentAvatarIdx = idx;
     localStorage.setItem('avatarIdx', idx);
     refreshAvatarDisplays();
-    renderShop();
+    renderAvatarGrid();
   }
 
   /* ════════════════════════════════
