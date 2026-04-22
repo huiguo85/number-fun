@@ -258,6 +258,64 @@
       font-size: 13px; font-weight: 900; color: white;
     }
 
+    /* ── WEEKLY GOAL ── */
+    .goal-btn {
+      width: 100%; padding: 12px 18px; border-radius: 22px; border: 3px solid #222;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white; font-family: inherit; font-size: 16px; font-weight: 900;
+      cursor: pointer; box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .goal-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,0.2); }
+    .goal-btn-left { display: flex; align-items: center; gap: 8px; }
+    .goal-btn-label { font-size: 13px; opacity: 0.85; }
+
+    .goal-progress-bar-wrap {
+      flex: 1; height: 10px; background: rgba(255,255,255,0.3);
+      border-radius: 6px; overflow: hidden; min-width: 60px;
+    }
+    .goal-progress-bar-fill {
+      height: 100%; background: #FFD166; border-radius: 6px;
+      transition: width 0.4s ease;
+    }
+
+    /* popup overlay */
+    .goal-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; border-radius: 40px;
+    }
+    .goal-popup {
+      background: white; border: 4px solid #222; border-radius: 28px;
+      padding: 22px 18px; width: 320px;
+      box-shadow: 0 12px 0 rgba(0,0,0,0.18);
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .goal-popup-title { font-size: 26px; font-weight: 900; color: #5B0FA8; text-align: center; }
+    .goal-card {
+      border: 3px solid #DDD; border-radius: 18px; padding: 12px 14px;
+      cursor: pointer; transition: border-color 0.15s, background 0.15s;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .goal-card:hover { border-color: #764ba2; background: #F5F0FF; }
+    .goal-card.chosen { border-color: #764ba2; background: #EEE6FF; box-shadow: 0 0 0 2px #764ba2; }
+    .goal-card-top { display: flex; justify-content: space-between; align-items: center; }
+    .goal-card-name { font-size: 15px; font-weight: 900; color: #333; }
+    .goal-card-reward { font-size: 14px; font-weight: 900; color: #FF9900; }
+    .goal-card-desc { font-size: 12px; color: #777; font-weight: 700; }
+    .goal-start-btn {
+      width: 100%; padding: 14px; border-radius: 18px; border: 3px solid #222;
+      background: linear-gradient(135deg, #667eea, #764ba2); color: white;
+      font-family: inherit; font-size: 18px; font-weight: 900; cursor: pointer;
+      box-shadow: 0 6px 0 rgba(0,0,0,0.2); transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .goal-start-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,0.2); }
+    .goal-close-btn {
+      background: none; border: none; font-size: 22px; cursor: pointer;
+      position: absolute; top: 14px; right: 18px;
+    }
+
     /* ── PROBLEM SCREEN ── */
     #problem {
       background: linear-gradient(160deg, #E0F4FF 0%, #B3E5FC 100%);
@@ -461,6 +519,28 @@
         </svg>
         <span class="mode-label">Take Away</span>
       </button>
+    </div>
+
+    <button class="goal-btn" id="goal-btn" onclick="openGoalPopup()">
+      <div class="goal-btn-left">
+        <span>🎯</span>
+        <div>
+          <div style="font-size:15px;font-weight:900;">Weekly Goal</div>
+          <div class="goal-btn-label" id="goal-btn-label">Tap to choose a goal!</div>
+        </div>
+      </div>
+      <div class="goal-progress-bar-wrap" id="goal-bar-wrap" style="display:none">
+        <div class="goal-progress-bar-fill" id="goal-bar-fill" style="width:0%"></div>
+      </div>
+    </button>
+  </div>
+
+  <!-- GOAL POPUP (inside .phone so it clips to phone edges) -->
+  <div class="goal-overlay hidden" id="goal-overlay" onclick="closeGoalPopup(event)">
+    <div class="goal-popup">
+      <div class="goal-popup-title">🎯 Weekly Goal</div>
+      <div id="goal-cards"></div>
+      <button class="goal-start-btn" onclick="startGoal()">Let's Go!</button>
     </div>
   </div>
 
@@ -776,47 +856,46 @@
 
   const ACCESSORIES = [
     { name: 'Party Hat', cost: 5, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="60,8 32,58 88,58" fill="#FF6B6B" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
-        <line x1="46" y1="34" x2="50" y2="26" stroke="#FFD166" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="57" y1="20" x2="61" y2="12" stroke="#7BCFFF" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="72" y1="34" x2="76" y2="26" stroke="#FFD166" stroke-width="2.5" stroke-linecap="round"/>
-        <ellipse cx="60" cy="58" rx="28" ry="8" fill="#FF9900" stroke="#222" stroke-width="2"/>
-        <circle cx="60" cy="8" r="5" fill="#FFD166" stroke="#222" stroke-width="1.5"/>
+        <polygon points="60,2 36,40 84,40" fill="#FF6B6B" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
+        <line x1="48" y1="23" x2="52" y2="15" stroke="#FFD166" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="59" y1="10" x2="63" y2="2"  stroke="#7BCFFF" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="70" y1="23" x2="74" y2="15" stroke="#FFD166" stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="60" cy="40" rx="24" ry="7" fill="#FF9900" stroke="#222" stroke-width="2"/>
+        <circle cx="60" cy="2"  r="5"  fill="#FFD166" stroke="#222" stroke-width="1.5"/>
       </svg>` },
     { name: 'Shades', cost: 15, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        <rect x="14" y="60" width="38" height="22" rx="11" fill="#1A1A1A" stroke="#222" stroke-width="2.5"/>
-        <rect x="68" y="60" width="38" height="22" rx="11" fill="#1A1A1A" stroke="#222" stroke-width="2.5"/>
-        <line x1="52" y1="71" x2="68" y2="71" stroke="#555" stroke-width="3" stroke-linecap="round"/>
-        <line x1="14" y1="69" x2="6" y2="63" stroke="#555" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="106" y1="69" x2="114" y2="63" stroke="#555" stroke-width="2.5" stroke-linecap="round"/>
-        <ellipse cx="33" cy="71" rx="14" ry="9" fill="#FF6B6B" opacity="0.3"/>
-        <ellipse cx="87" cy="71" rx="14" ry="9" fill="#FF6B6B" opacity="0.3"/>
+        <rect x="14" y="54" width="38" height="22" rx="11" fill="#1A1A1A" stroke="#222" stroke-width="2.5"/>
+        <rect x="68" y="54" width="38" height="22" rx="11" fill="#1A1A1A" stroke="#222" stroke-width="2.5"/>
+        <line x1="52" y1="65" x2="68" y2="65" stroke="#555" stroke-width="3" stroke-linecap="round"/>
+        <line x1="14" y1="63" x2="4"  y2="57" stroke="#555" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="106" y1="63" x2="116" y2="57" stroke="#555" stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="33" cy="65" rx="14" ry="9" fill="#FF6B6B" opacity="0.3"/>
+        <ellipse cx="87" cy="65" rx="14" ry="9" fill="#FF6B6B" opacity="0.3"/>
       </svg>` },
     { name: 'Bow', cost: 30, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        <path d="M60,28 C50,16 26,12 28,28 C30,42 52,33 60,28Z" fill="#FF6B9D" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
-        <path d="M60,28 C70,16 94,12 92,28 C90,42 68,33 60,28Z" fill="#FF6B9D" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
-        <circle cx="60" cy="28" r="8" fill="#FF3D7F" stroke="#222" stroke-width="2"/>
-        <circle cx="60" cy="28" r="3.5" fill="#FFB6C1"/>
+        <path d="M60,18 C50,6 26,2 28,18 C30,32 52,23 60,18Z" fill="#FF6B9D" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M60,18 C70,6 94,2 92,18 C90,32 68,23 60,18Z" fill="#FF6B9D" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
+        <circle cx="60" cy="18" r="8" fill="#FF3D7F" stroke="#222" stroke-width="2"/>
+        <circle cx="60" cy="18" r="3.5" fill="#FFB6C1"/>
       </svg>` },
     { name: 'Crown', cost: 75, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        <path d="M18,58 L28,22 L60,44 L92,22 L102,58 Z" fill="#FFD700" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
-        <rect x="16" y="56" width="88" height="14" rx="5" fill="#FFC200" stroke="#222" stroke-width="2.5"/>
-        <circle cx="28" cy="22" r="6" fill="#FF4136" stroke="#222" stroke-width="1.5"/>
-        <circle cx="60" cy="44" r="6" fill="#7BCFFF" stroke="#222" stroke-width="1.5"/>
-        <circle cx="92" cy="22" r="6" fill="#FF4136" stroke="#222" stroke-width="1.5"/>
+        <path d="M18,44 L28,8 L60,30 L92,8 L102,44 Z" fill="#FFD700" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
+        <rect x="16" y="42" width="88" height="13" rx="5" fill="#FFC200" stroke="#222" stroke-width="2.5"/>
+        <circle cx="28" cy="8"  r="6" fill="#FF4136" stroke="#222" stroke-width="1.5"/>
+        <circle cx="60" cy="30" r="6" fill="#7BCFFF" stroke="#222" stroke-width="1.5"/>
+        <circle cx="92" cy="8"  r="6" fill="#FF4136" stroke="#222" stroke-width="1.5"/>
       </svg>` },
     { name: 'Wizard', cost: 150, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="60,4 30,70 90,70" fill="#7B52AB" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
-        <ellipse cx="60" cy="70" rx="36" ry="10" fill="#5B3A8A" stroke="#222" stroke-width="2.5"/>
-        <circle cx="47" cy="32" r="4" fill="#FFD700" opacity="0.95"/>
-        <circle cx="66" cy="18" r="3" fill="#FFD700" opacity="0.95"/>
-        <circle cx="73" cy="48" r="3.5" fill="#7BCFFF" opacity="0.95"/>
-        <path d="M38,54 Q44,46 50,54" fill="none" stroke="#FFD700" stroke-width="2.2" opacity="0.9"/>
+        <polygon points="60,0 33,50 87,50" fill="#7B52AB" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
+        <ellipse cx="60" cy="50" rx="33" ry="9" fill="#5B3A8A" stroke="#222" stroke-width="2.5"/>
+        <circle cx="48" cy="22" r="4" fill="#FFD700" opacity="0.95"/>
+        <circle cx="66" cy="8"  r="3" fill="#FFD700" opacity="0.95"/>
+        <circle cx="73" cy="36" r="3.5" fill="#7BCFFF" opacity="0.95"/>
+        <path d="M40,40 Q46,32 52,40" fill="none" stroke="#FFD700" stroke-width="2.2" opacity="0.9"/>
       </svg>` },
     { name: 'Halo', cost: 300, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="60" cy="20" rx="36" ry="10" fill="none" stroke="#FFD700" stroke-width="7"/>
-        <ellipse cx="60" cy="18" rx="36" ry="10" fill="none" stroke="#FFF0A0" stroke-width="3.5" opacity="0.8"/>
-        <ellipse cx="60" cy="20" rx="36" ry="10" fill="none" stroke="#FFB800" stroke-width="2" opacity="0.5"/>
+        <ellipse cx="60" cy="8" rx="36" ry="9" fill="none" stroke="#FFD700" stroke-width="7"/>
+        <ellipse cx="60" cy="6" rx="36" ry="9" fill="none" stroke="#FFF0A0" stroke-width="3.5" opacity="0.8"/>
       </svg>` },
     { name: 'Wings', cost: 500, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <path d="M60,68 C44,52 6,56 8,76 C11,92 42,80 60,68Z" fill="#7CFC00" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
@@ -856,6 +935,7 @@
   function init() {
     refreshAvatarDisplays();
     updateShopBtn();
+    updateGoalUI();
   }
 
   function refreshAvatarDisplays() {
@@ -1005,6 +1085,111 @@
   }
 
   /* ════════════════════════════════
+     WEEKLY GOALS
+  ════════════════════════════════ */
+  const GOALS = [
+    { name: '25 Correct',    desc: 'Answer 25 questions right',         target: 25,  reward: 50,  type: 'total'  },
+    { name: '50 Correct',    desc: 'Answer 50 questions right',         target: 50,  reward: 100, type: 'total'  },
+    { name: '50 in a Row!',  desc: 'Get 50 right in a row (no misses)', target: 50,  reward: 250, type: 'streak' },
+  ];
+
+  let activeGoalIdx  = parseInt(localStorage.getItem('activeGoalIdx') || '-1');
+  let goalProgress   = parseInt(localStorage.getItem('goalProgress')  || '0');
+  let chosenGoalIdx  = activeGoalIdx; // selection in popup before confirming
+
+  function openGoalPopup() {
+    chosenGoalIdx = activeGoalIdx;
+    const container = document.getElementById('goal-cards');
+    container.innerHTML = '';
+    GOALS.forEach((g, i) => {
+      const card = document.createElement('div');
+      const isActive = activeGoalIdx === i;
+      card.className = 'goal-card' + (chosenGoalIdx === i ? ' chosen' : '');
+      card.innerHTML = `
+        <div class="goal-card-top">
+          <span class="goal-card-name">${g.name}</span>
+          <span class="goal-card-reward">⭐ ${g.reward}</span>
+        </div>
+        <div class="goal-card-desc">${g.desc}${isActive ? ` — ${goalProgress}/${g.target}` : ''}</div>`;
+      card.onclick = () => {
+        chosenGoalIdx = i;
+        document.querySelectorAll('.goal-card').forEach((c, j) =>
+          c.classList.toggle('chosen', j === i));
+      };
+      container.appendChild(card);
+    });
+    document.getElementById('goal-overlay').classList.remove('hidden');
+  }
+
+  function closeGoalPopup(e) {
+    if (e.target === document.getElementById('goal-overlay'))
+      document.getElementById('goal-overlay').classList.add('hidden');
+  }
+
+  function startGoal() {
+    if (chosenGoalIdx < 0) return;
+    if (chosenGoalIdx !== activeGoalIdx) {
+      activeGoalIdx = chosenGoalIdx;
+      goalProgress  = 0;
+      localStorage.setItem('activeGoalIdx', activeGoalIdx);
+      localStorage.setItem('goalProgress',  goalProgress);
+    }
+    document.getElementById('goal-overlay').classList.add('hidden');
+    updateGoalUI();
+  }
+
+  function recordCorrect() {
+    if (activeGoalIdx < 0) return;
+    const goal = GOALS[activeGoalIdx];
+    goalProgress++;
+    localStorage.setItem('goalProgress', goalProgress);
+    updateGoalUI();
+    if (goalProgress >= goal.target) completeGoal();
+  }
+
+  function recordWrong() {
+    if (activeGoalIdx < 0) return;
+    if (GOALS[activeGoalIdx].type === 'streak') {
+      goalProgress = 0;
+      localStorage.setItem('goalProgress', goalProgress);
+      updateGoalUI();
+    }
+  }
+
+  function completeGoal() {
+    const reward = GOALS[activeGoalIdx].reward;
+    totalStars += reward;
+    localStorage.setItem('totalStars', totalStars);
+    updateShopBtn();
+    activeGoalIdx = -1;
+    goalProgress  = 0;
+    localStorage.setItem('activeGoalIdx', -1);
+    localStorage.setItem('goalProgress',  0);
+    updateGoalUI();
+    // celebratory alert using the feedback screen briefly
+    const btn = document.getElementById('goal-btn');
+    const orig = btn.querySelector('.goal-btn-label').textContent;
+    btn.querySelector('.goal-btn-label').textContent = `+${reward} stars! Goal done! 🎉`;
+    setTimeout(() => updateGoalUI(), 3000);
+  }
+
+  function updateGoalUI() {
+    const btn   = document.getElementById('goal-btn');
+    const label = document.getElementById('goal-btn-label');
+    const wrap  = document.getElementById('goal-bar-wrap');
+    const fill  = document.getElementById('goal-bar-fill');
+    if (activeGoalIdx < 0) {
+      label.textContent   = 'Tap to choose a goal!';
+      wrap.style.display  = 'none';
+    } else {
+      const goal = GOALS[activeGoalIdx];
+      label.textContent  = goal.name;
+      wrap.style.display = 'block';
+      fill.style.width   = Math.min(100, Math.round(goalProgress / goal.target * 100)) + '%';
+    }
+  }
+
+  /* ════════════════════════════════
      GAME FLOW
   ════════════════════════════════ */
   function setDifficulty(d) {
@@ -1112,12 +1297,14 @@
       localStorage.setItem('totalStars', totalStars);
       document.getElementById('score').textContent = score;
       updateShopBtn();
+      recordCorrect();
       setTimeout(() => showFeedback(true), 400);
     } else {
       btn.className = 'ans-btn wrong';
       document.querySelectorAll('.ans-btn').forEach(b => {
         if (parseInt(b.textContent) === correctAnswer) b.className = 'ans-btn correct';
       });
+      recordWrong();
       setTimeout(() => showFeedback(false), 800);
     }
   }
