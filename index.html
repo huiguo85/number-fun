@@ -424,6 +424,25 @@
     .ans-btn.correct { background: #06D6A0; color: white; border-color: #04A57E; }
     .ans-btn.wrong   { background: #EF476F; color: white; border-color: #C02050; }
 
+    /* Number-pad (medium & hard) */
+    .numpad {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 10px; width: 100%; padding: 0 4px;
+    }
+    .np-btn {
+      height: 68px; border-radius: 20px; border: 3px solid #222;
+      font-size: 28px; font-weight: 900; cursor: pointer;
+      background: white; color: #444; font-family: inherit;
+      box-shadow: 0 6px 0 rgba(0,0,0,0.14); transition: transform 0.1s, box-shadow 0.1s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .np-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,0.14); }
+    .np-btn.np-back { font-size: 24px; background: #FFD166; }
+    .np-btn.np-check { background: #06D6A0; color: white; border-color: #04A57E; font-size: 30px; }
+    .np-btn.np-check:disabled { background: #ccc; border-color: #aaa; color: #fff; box-shadow: none; }
+    .answer-box.typing { border: 4px solid #7BCFFF; color: #333; font-size: 44px; }
+    .answer-box.typing-done { border: 4px solid #06D6A0; color: #06D6A0; }
+
     /* ── FEEDBACK SCREEN ── */
     #feedback { justify-content: center; gap: 18px; }
     #feedback.correct-bg { background: linear-gradient(160deg, #D4F7E7 0%, #06D6A0 100%); }
@@ -641,6 +660,7 @@
     </div>
 
     <div class="answer-grid" id="answer-grid"></div>
+    <div class="numpad hidden" id="numpad"></div>
   </div>
 
   <!-- FEEDBACK SCREEN -->
@@ -1397,7 +1417,15 @@
     box.textContent = '?';
     box.className   = 'answer-box';
 
-    buildAnswerGrid(correctAnswer, cfg.distractorStep, max);
+    if (difficulty === 'easy') {
+      document.getElementById('answer-grid').classList.remove('hidden');
+      document.getElementById('numpad').classList.add('hidden');
+      buildAnswerGrid(correctAnswer, cfg.distractorStep, max);
+    } else {
+      document.getElementById('answer-grid').classList.add('hidden');
+      document.getElementById('numpad').classList.remove('hidden');
+      buildNumpad();
+    }
   }
 
   function renderGroup(id, count) {
@@ -1435,6 +1463,53 @@
     });
   }
 
+  let typedAnswer = '';
+
+  function buildNumpad() {
+    typedAnswer = '';
+    const pad = document.getElementById('numpad');
+    pad.innerHTML = '';
+    const keys = ['1','2','3','4','5','6','7','8','9','←','0','✓'];
+    keys.forEach(k => {
+      const btn = document.createElement('button');
+      btn.textContent = k;
+      btn.className = 'np-btn' +
+        (k === '←' ? ' np-back' : '') +
+        (k === '✓' ? ' np-check' : '');
+      if (k === '✓') btn.id = 'np-check-btn';
+      btn.addEventListener('click', () => numpadPress(k));
+      pad.appendChild(btn);
+    });
+    updateNumpadDisplay();
+  }
+
+  function numpadPress(key) {
+    if (isProcessing) return;
+    const box = document.getElementById('answer-box');
+    const maxLen = difficulty === 'hard' ? 3 : 2;
+    if (key === '←') {
+      typedAnswer = typedAnswer.slice(0, -1);
+    } else if (key === '✓') {
+      if (!typedAnswer) return;
+      checkAnswer(parseInt(typedAnswer), null);
+      return;
+    } else {
+      if (typedAnswer.length >= maxLen) return;
+      // prevent leading zeros
+      if (typedAnswer === '0') return;
+      typedAnswer += key;
+    }
+    updateNumpadDisplay();
+  }
+
+  function updateNumpadDisplay() {
+    const box     = document.getElementById('answer-box');
+    const checkBtn = document.getElementById('np-check-btn');
+    box.textContent = typedAnswer || '?';
+    box.className   = typedAnswer ? 'answer-box typing' : 'answer-box';
+    if (checkBtn) checkBtn.disabled = !typedAnswer;
+  }
+
   function checkAnswer(chosen, btn) {
     if (isProcessing) return;
     isProcessing = true;
@@ -1443,9 +1518,16 @@
     const box = document.getElementById('answer-box');
     box.textContent = chosen;
 
+    const isNumpad = (btn === null);
+
     if (chosen === correctAnswer) {
-      btn.className   = 'ans-btn correct';
-      box.className   = 'answer-box filled';
+      if (!isNumpad) btn.className = 'ans-btn correct';
+      box.className = 'answer-box filled';
+      if (isNumpad) {
+        // Flash the check button green
+        const cb = document.getElementById('np-check-btn');
+        if (cb) { cb.style.background = '#06D6A0'; cb.style.transform = 'scale(1.1)'; }
+      }
       score++;
       totalStars++;
       localStorage.setItem('totalStars', totalStars);
@@ -1454,10 +1536,21 @@
       recordCorrect();
       setTimeout(() => showFeedback(true), 400);
     } else {
-      btn.className = 'ans-btn wrong';
-      document.querySelectorAll('.ans-btn').forEach(b => {
-        if (parseInt(b.textContent) === correctAnswer) b.className = 'ans-btn correct';
-      });
+      if (!isNumpad) {
+        btn.className = 'ans-btn wrong';
+        document.querySelectorAll('.ans-btn').forEach(b => {
+          if (parseInt(b.textContent) === correctAnswer) b.className = 'ans-btn correct';
+        });
+      } else {
+        // Flash box red, briefly show correct answer
+        box.className = 'answer-box wrong-flash';
+        box.style.cssText += ';background:#EF476F;color:white;border-color:#C02050';
+        setTimeout(() => {
+          box.textContent = correctAnswer;
+          box.style.cssText = '';
+          box.className = 'answer-box filled';
+        }, 500);
+      }
       recordWrong();
       setTimeout(() => showFeedback(false), 800);
     }
