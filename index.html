@@ -316,6 +316,24 @@
       position: absolute; top: 14px; right: 18px;
     }
 
+    .prize-btn {
+      width: 100%; padding: 16px; border-radius: 22px; border: 3px solid #222;
+      background: linear-gradient(135deg, #FFD700, #FF9900);
+      color: white; font-family: inherit; font-size: 20px; font-weight: 900;
+      cursor: pointer; box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+      animation: prizePulse 0.8s ease infinite alternate;
+    }
+    @keyframes prizePulse {
+      from { transform: scale(1);    box-shadow: 0 6px 0 rgba(0,0,0,0.2); }
+      to   { transform: scale(1.04); box-shadow: 0 8px 0 rgba(0,0,0,0.25); }
+    }
+
+    .glitch-overlay {
+      position: absolute; inset: 0; z-index: 200; border-radius: 40px;
+      background-size: 24px 24px; image-rendering: pixelated;
+      cursor: pointer;
+    }
+
     /* ── PROBLEM SCREEN ── */
     #problem {
       background: linear-gradient(160deg, #E0F4FF 0%, #B3E5FC 100%);
@@ -533,16 +551,23 @@
         <div class="goal-progress-bar-fill" id="goal-bar-fill" style="width:0%"></div>
       </div>
     </button>
+
+    <button class="prize-btn hidden" id="prize-btn" onclick="openGoalPopup()">
+      🎁 Collect Prize!
+    </button>
   </div>
 
-  <!-- GOAL POPUP (inside .phone so it clips to phone edges) -->
+  <!-- GOAL POPUP -->
   <div class="goal-overlay hidden" id="goal-overlay" onclick="closeGoalPopup(event)">
     <div class="goal-popup">
       <div class="goal-popup-title">🎯 Weekly Goal</div>
       <div id="goal-cards"></div>
-      <button class="goal-start-btn" onclick="startGoal()">Let's Go!</button>
+      <button class="goal-start-btn" id="goal-start-btn">Let's Go!</button>
     </div>
   </div>
+
+  <!-- GLITCH OVERLAY -->
+  <div class="glitch-overlay hidden" id="glitch-overlay" onclick="dismissGlitch()"></div>
 
   <!-- SHOP SCREEN -->
   <div class="screen hidden" id="shop">
@@ -936,6 +961,7 @@
     refreshAvatarDisplays();
     updateShopBtn();
     updateGoalUI();
+    setupGlitchHold();
   }
 
   function refreshAvatarDisplays() {
@@ -1088,36 +1114,90 @@
      WEEKLY GOALS
   ════════════════════════════════ */
   const GOALS = [
-    { name: '25 Correct',    desc: 'Answer 25 questions right',         target: 25,  reward: 50,  type: 'total'  },
-    { name: '50 Correct',    desc: 'Answer 50 questions right',         target: 50,  reward: 100, type: 'total'  },
-    { name: '50 in a Row!',  desc: 'Get 50 right in a row (no misses)', target: 50,  reward: 250, type: 'streak' },
+    { name: '25 Correct',   desc: 'Answer 25 questions right',         target: 25, reward: 50,  type: 'total'  },
+    { name: '50 Correct',   desc: 'Answer 50 questions right',         target: 50, reward: 100, type: 'total'  },
+    { name: '50 in a Row!', desc: 'Get 50 right in a row (no misses)', target: 50, reward: 250, type: 'streak' },
   ];
 
-  let activeGoalIdx  = parseInt(localStorage.getItem('activeGoalIdx') || '-1');
-  let goalProgress   = parseInt(localStorage.getItem('goalProgress')  || '0');
-  let chosenGoalIdx  = activeGoalIdx; // selection in popup before confirming
+  function getWeekKey() {
+    const d = new Date();
+    const jan1 = new Date(d.getFullYear(), 0, 1);
+    const week = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+    return `${d.getFullYear()}-W${week}`;
+  }
+
+  let activeGoalIdx   = parseInt(localStorage.getItem('activeGoalIdx')  || '-1');
+  let goalProgress    = parseInt(localStorage.getItem('goalProgress')    || '0');
+  let goalWeekKey     = localStorage.getItem('goalWeekKey')              || '';
+  let goalPrizeReady  = localStorage.getItem('goalPrizeReady') === 'true';
+  let chosenGoalIdx   = -1;
+
+  // Reset if new week and no uncollected prize
+  (function checkWeekReset() {
+    const cur = getWeekKey();
+    if (goalWeekKey && goalWeekKey !== cur && !goalPrizeReady) {
+      activeGoalIdx = -1; goalProgress = 0; goalWeekKey = '';
+      localStorage.setItem('activeGoalIdx', -1);
+      localStorage.setItem('goalProgress',  0);
+      localStorage.setItem('goalWeekKey',   '');
+    }
+  })();
 
   function openGoalPopup() {
-    chosenGoalIdx = activeGoalIdx;
     const container = document.getElementById('goal-cards');
+    const startBtn  = document.getElementById('goal-start-btn');
     container.innerHTML = '';
-    GOALS.forEach((g, i) => {
-      const card = document.createElement('div');
-      const isActive = activeGoalIdx === i;
-      card.className = 'goal-card' + (chosenGoalIdx === i ? ' chosen' : '');
-      card.innerHTML = `
-        <div class="goal-card-top">
-          <span class="goal-card-name">${g.name}</span>
-          <span class="goal-card-reward">⭐ ${g.reward}</span>
-        </div>
-        <div class="goal-card-desc">${g.desc}${isActive ? ` — ${goalProgress}/${g.target}` : ''}</div>`;
-      card.onclick = () => {
-        chosenGoalIdx = i;
-        document.querySelectorAll('.goal-card').forEach((c, j) =>
-          c.classList.toggle('chosen', j === i));
-      };
-      container.appendChild(card);
-    });
+
+    if (goalPrizeReady) {
+      // Show "claim your prize" view
+      const g = GOALS[activeGoalIdx];
+      container.innerHTML = `
+        <div style="text-align:center;padding:10px 0;">
+          <div style="font-size:48px">🏆</div>
+          <div style="font-size:18px;font-weight:900;color:#333;margin:8px 0">${g.name} complete!</div>
+          <div style="font-size:14px;color:#777">Your reward: <strong style="color:#FF9900">⭐ ${g.reward} stars</strong></div>
+        </div>`;
+      startBtn.textContent = '🎁 Collect Prize!';
+      startBtn.onclick = collectPrize;
+    } else if (activeGoalIdx >= 0 && goalWeekKey === getWeekKey()) {
+      // Goal in progress — read-only view
+      const g = GOALS[activeGoalIdx];
+      GOALS.forEach((gl, i) => {
+        const card = document.createElement('div');
+        card.className = 'goal-card' + (i === activeGoalIdx ? ' chosen' : '');
+        card.style.pointerEvents = 'none';
+        card.innerHTML = `
+          <div class="goal-card-top">
+            <span class="goal-card-name">${gl.name}</span>
+            <span class="goal-card-reward">⭐ ${gl.reward}</span>
+          </div>
+          <div class="goal-card-desc">${gl.desc}${i === activeGoalIdx ? ` — ${goalProgress}/${gl.target}` : ''}</div>`;
+        container.appendChild(card);
+      });
+      startBtn.textContent = '⏳ In Progress…';
+      startBtn.onclick = () => document.getElementById('goal-overlay').classList.add('hidden');
+    } else {
+      // Pick a goal
+      chosenGoalIdx = -1;
+      GOALS.forEach((g, i) => {
+        const card = document.createElement('div');
+        card.className = 'goal-card';
+        card.innerHTML = `
+          <div class="goal-card-top">
+            <span class="goal-card-name">${g.name}</span>
+            <span class="goal-card-reward">⭐ ${g.reward}</span>
+          </div>
+          <div class="goal-card-desc">${g.desc}</div>`;
+        card.onclick = () => {
+          chosenGoalIdx = i;
+          document.querySelectorAll('.goal-card').forEach((c, j) =>
+            c.classList.toggle('chosen', j === i));
+        };
+        container.appendChild(card);
+      });
+      startBtn.textContent = "Let's Go!";
+      startBtn.onclick = startGoal;
+    }
     document.getElementById('goal-overlay').classList.remove('hidden');
   }
 
@@ -1128,27 +1208,44 @@
 
   function startGoal() {
     if (chosenGoalIdx < 0) return;
-    if (chosenGoalIdx !== activeGoalIdx) {
-      activeGoalIdx = chosenGoalIdx;
-      goalProgress  = 0;
-      localStorage.setItem('activeGoalIdx', activeGoalIdx);
-      localStorage.setItem('goalProgress',  goalProgress);
-    }
+    activeGoalIdx = chosenGoalIdx;
+    goalProgress  = 0;
+    goalWeekKey   = getWeekKey();
+    goalPrizeReady = false;
+    localStorage.setItem('activeGoalIdx',  activeGoalIdx);
+    localStorage.setItem('goalProgress',   goalProgress);
+    localStorage.setItem('goalWeekKey',    goalWeekKey);
+    localStorage.setItem('goalPrizeReady', 'false');
     document.getElementById('goal-overlay').classList.add('hidden');
     updateGoalUI();
   }
 
+  function collectPrize() {
+    const reward = GOALS[activeGoalIdx].reward;
+    totalStars += reward;
+    localStorage.setItem('totalStars', totalStars);
+    updateShopBtn();
+    goalPrizeReady = false;
+    activeGoalIdx  = -1;
+    goalProgress   = 0;
+    localStorage.setItem('goalPrizeReady', 'false');
+    localStorage.setItem('activeGoalIdx',  -1);
+    localStorage.setItem('goalProgress',   0);
+    document.getElementById('goal-overlay').classList.add('hidden');
+    updateGoalUI();
+    spawnConfetti();
+  }
+
   function recordCorrect() {
-    if (activeGoalIdx < 0) return;
-    const goal = GOALS[activeGoalIdx];
+    if (activeGoalIdx < 0 || goalPrizeReady) return;
     goalProgress++;
     localStorage.setItem('goalProgress', goalProgress);
     updateGoalUI();
-    if (goalProgress >= goal.target) completeGoal();
+    if (goalProgress >= GOALS[activeGoalIdx].target) completeGoal();
   }
 
   function recordWrong() {
-    if (activeGoalIdx < 0) return;
+    if (activeGoalIdx < 0 || goalPrizeReady) return;
     if (GOALS[activeGoalIdx].type === 'streak') {
       goalProgress = 0;
       localStorage.setItem('goalProgress', goalProgress);
@@ -1157,36 +1254,80 @@
   }
 
   function completeGoal() {
-    const reward = GOALS[activeGoalIdx].reward;
-    totalStars += reward;
-    localStorage.setItem('totalStars', totalStars);
-    updateShopBtn();
-    activeGoalIdx = -1;
-    goalProgress  = 0;
-    localStorage.setItem('activeGoalIdx', -1);
-    localStorage.setItem('goalProgress',  0);
+    goalPrizeReady = true;
+    localStorage.setItem('goalPrizeReady', 'true');
     updateGoalUI();
-    // celebratory alert using the feedback screen briefly
-    const btn = document.getElementById('goal-btn');
-    const orig = btn.querySelector('.goal-btn-label').textContent;
-    btn.querySelector('.goal-btn-label').textContent = `+${reward} stars! Goal done! 🎉`;
-    setTimeout(() => updateGoalUI(), 3000);
   }
 
   function updateGoalUI() {
-    const btn   = document.getElementById('goal-btn');
     const label = document.getElementById('goal-btn-label');
     const wrap  = document.getElementById('goal-bar-wrap');
     const fill  = document.getElementById('goal-bar-fill');
-    if (activeGoalIdx < 0) {
-      label.textContent   = 'Tap to choose a goal!';
-      wrap.style.display  = 'none';
-    } else {
+    const prize = document.getElementById('prize-btn');
+
+    if (goalPrizeReady) {
+      label.textContent  = GOALS[activeGoalIdx].name + ' ✅';
+      wrap.style.display = 'none';
+      prize.classList.remove('hidden');
+    } else if (activeGoalIdx >= 0) {
       const goal = GOALS[activeGoalIdx];
       label.textContent  = goal.name;
       wrap.style.display = 'block';
       fill.style.width   = Math.min(100, Math.round(goalProgress / goal.target * 100)) + '%';
+      prize.classList.add('hidden');
+    } else {
+      label.textContent  = 'Tap to choose a goal!';
+      wrap.style.display = 'none';
+      prize.classList.add('hidden');
     }
+  }
+
+  /* ════════════════════════════════
+     GLITCH EASTER EGG
+  ════════════════════════════════ */
+  let glitchHoldTimer   = null;
+  let glitchAnimFrame   = null;
+
+  function setupGlitchHold() {
+    const el = document.getElementById('home-avatar-el');
+    const start = () => {
+      glitchHoldTimer = setTimeout(triggerGlitch, 30000);
+    };
+    const cancel = () => clearTimeout(glitchHoldTimer);
+    el.addEventListener('pointerdown',   start);
+    el.addEventListener('pointerup',     cancel);
+    el.addEventListener('pointerleave',  cancel);
+    el.addEventListener('pointercancel', cancel);
+  }
+
+  function makeGlitchFrame() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 24; canvas.height = 24;
+    const ctx = canvas.getContext('2d');
+    const palette = ['#000000','#0a0014','#1a0033','#2d0060','#4400aa',
+                     '#6600ff','#8800ff','#000022','#110022','#220044'];
+    for (let x = 0; x < 24; x++)
+      for (let y = 0; y < 24; y++) {
+        ctx.fillStyle = palette[Math.floor(Math.random() * palette.length)];
+        ctx.fillRect(x, y, 1, 1);
+      }
+    return canvas.toDataURL();
+  }
+
+  function triggerGlitch() {
+    const overlay = document.getElementById('glitch-overlay');
+    overlay.classList.remove('hidden');
+    const animate = () => {
+      overlay.style.backgroundImage = `url(${makeGlitchFrame()})`;
+      glitchAnimFrame = requestAnimationFrame(animate);
+    };
+    animate();
+  }
+
+  function dismissGlitch() {
+    document.getElementById('glitch-overlay').classList.add('hidden');
+    cancelAnimationFrame(glitchAnimFrame);
+    glitchAnimFrame = null;
   }
 
   /* ════════════════════════════════
