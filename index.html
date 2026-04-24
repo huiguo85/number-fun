@@ -1132,14 +1132,18 @@
   let goalPrizeReady  = localStorage.getItem('goalPrizeReady') === 'true';
   let chosenGoalIdx   = -1;
 
-  // Reset if new week and no uncollected prize
+  // Reset on new week (keep prize if uncollected, otherwise full reset)
   (function checkWeekReset() {
     const cur = getWeekKey();
-    if (goalWeekKey && goalWeekKey !== cur && !goalPrizeReady) {
-      activeGoalIdx = -1; goalProgress = 0; goalWeekKey = '';
-      localStorage.setItem('activeGoalIdx', -1);
-      localStorage.setItem('goalProgress',  0);
-      localStorage.setItem('goalWeekKey',   '');
+    if (goalWeekKey && goalWeekKey !== cur) {
+      if (!goalPrizeReady) {
+        // No pending prize — full reset so a new goal can be picked
+        activeGoalIdx = -1; goalProgress = 0; goalWeekKey = '';
+        localStorage.setItem('activeGoalIdx', -1);
+        localStorage.setItem('goalProgress',  0);
+        localStorage.setItem('goalWeekKey',   '');
+      }
+      // If goalPrizeReady is true, keep state so they can still collect last week's prize
     }
   })();
 
@@ -1159,9 +1163,18 @@
         </div>`;
       startBtn.textContent = '🎁 Collect Prize!';
       startBtn.onclick = collectPrize;
+    } else if (goalWeekKey === getWeekKey() && activeGoalIdx < 0) {
+      // Prize already collected this week — no more goals until next week
+      container.innerHTML = `
+        <div style="text-align:center;padding:16px 0;">
+          <div style="font-size:52px">🌟</div>
+          <div style="font-size:17px;font-weight:900;color:#333;margin:10px 0">Goal done for this week!</div>
+          <div style="font-size:13px;color:#777;line-height:1.5">You already completed your goal.<br>Come back next week for a new one!</div>
+        </div>`;
+      startBtn.textContent = '👍 OK!';
+      startBtn.onclick = () => document.getElementById('goal-overlay').classList.add('hidden');
     } else if (activeGoalIdx >= 0 && goalWeekKey === getWeekKey()) {
       // Goal in progress — read-only view
-      const g = GOALS[activeGoalIdx];
       GOALS.forEach((gl, i) => {
         const card = document.createElement('div');
         card.className = 'goal-card' + (i === activeGoalIdx ? ' chosen' : '');
@@ -1177,7 +1190,7 @@
       startBtn.textContent = '⏳ In Progress…';
       startBtn.onclick = () => document.getElementById('goal-overlay').classList.add('hidden');
     } else {
-      // Pick a goal
+      // New week — pick a goal
       chosenGoalIdx = -1;
       GOALS.forEach((g, i) => {
         const card = document.createElement('div');
