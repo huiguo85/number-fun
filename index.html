@@ -498,16 +498,15 @@
 <body>
 <div class="phone">
 
-  <!-- LANGUAGE SWITCHER -->
-  <div class="lang-switcher" id="lang-switcher">
-    <button class="lang-btn" id="lb-en" onclick="setLang('en')" title="English">🇺🇸</button>
-    <button class="lang-btn" id="lb-zh" onclick="setLang('zh')" title="中文">🇨🇳</button>
-    <button class="lang-btn" id="lb-es" onclick="setLang('es')" title="Español">🇪🇸</button>
-    <button class="lang-btn" id="lb-pt" onclick="setLang('pt')" title="Português">🇵🇹</button>
-  </div>
-
   <!-- DIFFICULTY SCREEN -->
   <div class="screen" id="difficulty">
+    <!-- LANGUAGE SWITCHER (only on difficulty screen) -->
+    <div class="lang-switcher" id="lang-switcher">
+      <button class="lang-btn" id="lb-en" onclick="setLang('en')" title="English">🇺🇸</button>
+      <button class="lang-btn" id="lb-zh" onclick="setLang('zh')" title="中文">🇨🇳</button>
+      <button class="lang-btn" id="lb-es" onclick="setLang('es')" title="Español">🇪🇸</button>
+      <button class="lang-btn" id="lb-pt" onclick="setLang('pt')" title="Português">🇵🇹</button>
+    </div>
     <div class="diff-title" data-i18n="diffTitle">How hard<br>do you want?</div>
     <div class="diff-mascot" id="diff-mascot-el"></div>
     <div class="diff-buttons">
