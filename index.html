@@ -40,6 +40,24 @@
     .screen.hidden { opacity: 0; pointer-events: none; }
     .hidden { display: none !important; }
 
+    /* ── LANGUAGE SWITCHER ── */
+    .lang-switcher {
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 6px; z-index: 300;
+      background: rgba(255,255,255,0.85); border: 2.5px solid #222;
+      border-radius: 22px; padding: 5px 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      backdrop-filter: blur(4px);
+    }
+    .lang-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 22px; line-height: 1; padding: 2px 3px;
+      border-radius: 8px; transition: transform 0.15s, background 0.15s;
+      opacity: 0.5;
+    }
+    .lang-btn:hover { transform: scale(1.2); opacity: 1; }
+    .lang-btn.active { opacity: 1; background: rgba(0,0,0,0.08); transform: scale(1.1); }
+
     /* ── DIFFICULTY SCREEN ── */
     #difficulty { background: linear-gradient(160deg, #E8D5FF 0%, #C9A7FF 100%); }
 
@@ -480,9 +498,17 @@
 <body>
 <div class="phone">
 
+  <!-- LANGUAGE SWITCHER -->
+  <div class="lang-switcher" id="lang-switcher">
+    <button class="lang-btn" id="lb-en" onclick="setLang('en')" title="English">🇺🇸</button>
+    <button class="lang-btn" id="lb-zh" onclick="setLang('zh')" title="中文">🇨🇳</button>
+    <button class="lang-btn" id="lb-es" onclick="setLang('es')" title="Español">🇪🇸</button>
+    <button class="lang-btn" id="lb-pt" onclick="setLang('pt')" title="Português">🇵🇹</button>
+  </div>
+
   <!-- DIFFICULTY SCREEN -->
   <div class="screen" id="difficulty">
-    <div class="diff-title">How hard<br>do you want?</div>
+    <div class="diff-title" data-i18n="diffTitle">How hard<br>do you want?</div>
     <div class="diff-mascot" id="diff-mascot-el"></div>
     <div class="diff-buttons">
       <button class="diff-btn diff-btn-easy" onclick="setDifficulty('easy')">
@@ -498,8 +524,8 @@
           <line x1="14" y1="38" x2="9"  y2="43" stroke="white" stroke-width="3"   stroke-linecap="round"/>
         </svg>
         <div class="diff-btn-text">
-          <span class="diff-btn-name">Easy</span>
-          <span class="diff-btn-desc">Answers up to 9</span>
+          <span class="diff-btn-name" data-i18n="easy">Easy</span>
+          <span class="diff-btn-desc" data-i18n="easyDesc">Answers up to 9</span>
         </div>
       </button>
       <button class="diff-btn diff-btn-medium" onclick="setDifficulty('medium')">
@@ -507,8 +533,8 @@
           <polygon points="30,4 18,28 26,28 22,48 40,22 31,22" fill="white" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
         </svg>
         <div class="diff-btn-text">
-          <span class="diff-btn-name">Medium</span>
-          <span class="diff-btn-desc">Answers up to 24</span>
+          <span class="diff-btn-name" data-i18n="medium">Medium</span>
+          <span class="diff-btn-desc" data-i18n="mediumDesc">Answers up to 24</span>
         </div>
       </button>
       <button class="diff-btn diff-btn-hard" onclick="setDifficulty('hard')">
@@ -517,8 +543,8 @@
           <path d="M18 36 Q15 48 26 50 Q37 48 34 36 Q30 44 26 42 Q22 44 18 36Z" fill="white" stroke="white" stroke-width="1" stroke-linejoin="round"/>
         </svg>
         <div class="diff-btn-text">
-          <span class="diff-btn-name">Hard</span>
-          <span class="diff-btn-desc">Answers up to 100</span>
+          <span class="diff-btn-name" data-i18n="hard">Hard</span>
+          <span class="diff-btn-desc" data-i18n="hardDesc">Answers up to 100</span>
         </div>
       </button>
     </div>
@@ -532,15 +558,15 @@
           <path d="M6 2 L3 6 L3 20 Q3 22 5 22 L19 22 Q21 22 21 20 L21 6 L18 2Z" fill="#FFD166" stroke="#222" stroke-width="1.8" stroke-linejoin="round"/>
           <path d="M9 6 Q9 10 12 10 Q15 10 15 6" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round"/>
         </svg>
-        Shop
+        <span data-i18n="shop">Shop</span>
         <span class="shop-star-count" id="shop-star-count">⭐ 0</span>
       </button>
     </div>
 
-    <div class="app-title">Number Fun!</div>
+    <div class="app-title" data-i18n="appTitle">Number Fun!</div>
     <div class="home-avatar" id="home-avatar-el"></div>
-    <button class="diff-pill" onclick="showScreen('difficulty')">✦ Change difficulty</button>
-    <div class="subtitle">What do you want to do?</div>
+    <button class="diff-pill" onclick="showScreen('difficulty')" data-i18n="changeDiff">✦ Change difficulty</button>
+    <div class="subtitle" data-i18n="subtitle">What do you want to do?</div>
 
     <div class="home-buttons">
       <button class="mode-btn btn-add" onclick="startGame('add')">
@@ -548,13 +574,13 @@
           <rect x="23" y="6"  width="14" height="48" rx="7" fill="white" stroke="#1A1A1A" stroke-width="2.5"/>
           <rect x="6"  y="23" width="48" height="14" rx="7" fill="white" stroke="#1A1A1A" stroke-width="2.5"/>
         </svg>
-        <span class="mode-label">Add</span>
+        <span class="mode-label" data-i18n="add">Add</span>
       </button>
       <button class="mode-btn btn-sub" onclick="startGame('sub')">
         <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
           <rect x="6" y="23" width="48" height="14" rx="7" fill="white" stroke="#1A1A1A" stroke-width="2.5"/>
         </svg>
-        <span class="mode-label">Take Away</span>
+        <span class="mode-label" data-i18n="subtract">Take Away</span>
       </button>
     </div>
 
@@ -562,7 +588,7 @@
       <div class="goal-btn-left">
         <span>🎯</span>
         <div>
-          <div style="font-size:15px;font-weight:900;">Weekly Goal</div>
+          <div style="font-size:15px;font-weight:900;" data-i18n="weeklyGoal">Weekly Goal</div>
           <div class="goal-btn-label" id="goal-btn-label">Tap to choose a goal!</div>
         </div>
       </div>
@@ -572,16 +598,16 @@
     </button>
 
     <button class="prize-btn hidden" id="prize-btn" onclick="openGoalPopup()">
-      🎁 Collect Prize!
+      <span data-i18n="collectPrize">🎁 Collect Prize!</span>
     </button>
   </div>
 
   <!-- GOAL POPUP -->
   <div class="goal-overlay hidden" id="goal-overlay" onclick="closeGoalPopup(event)">
     <div class="goal-popup">
-      <div class="goal-popup-title">🎯 Weekly Goal</div>
+      <div class="goal-popup-title" data-i18n="goalPopupTitle">🎯 Weekly Goal</div>
       <div id="goal-cards"></div>
-      <button class="goal-start-btn" id="goal-start-btn">Let's Go!</button>
+      <button class="goal-start-btn" id="goal-start-btn" data-i18n="letsGo">Let's Go!</button>
     </div>
   </div>
 
@@ -595,17 +621,17 @@
         <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
           <path d="M13 3 L6 10 L13 17" fill="none" stroke="#444" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Back
+        <span data-i18n="back">Back</span>
       </button>
       <div class="shop-stars-badge">
         <svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
           <polygon points="15,2 18,10 27,10 20,16 23,25 15,19 7,25 10,16 3,10 12,10" fill="#FF9900" stroke="#1A1A1A" stroke-width="2" stroke-linejoin="round"/>
         </svg>
-        <span id="shop-total-stars">0</span> stars
+        <span id="shop-total-stars">0</span> <span data-i18n="stars">stars</span>
       </div>
     </div>
 
-    <div class="shop-title">Avatar Shop</div>
+    <div class="shop-title" data-i18n="avatarShop">Avatar Shop</div>
     <div class="shop-timer" id="shop-timer">
       <svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
         <circle cx="12" cy="13" r="9" fill="none" stroke="currentColor" stroke-width="2.5"/>
@@ -616,8 +642,8 @@
     </div>
 
     <div class="shop-tabs">
-      <button class="shop-tab active" id="tab-buddies" onclick="switchShopTab('buddies')">🐾 Buddies</button>
-      <button class="shop-tab" id="tab-gear" onclick="switchShopTab('gear')">🎩 Gear</button>
+      <button class="shop-tab active" id="tab-buddies" onclick="switchShopTab('buddies')"><span data-i18n="buddiesTab">🐾 Buddies</span></button>
+      <button class="shop-tab" id="tab-gear" onclick="switchShopTab('gear')"><span data-i18n="gearTab">🎩 Gear</span></button>
     </div>
     <div class="avatar-grid" id="avatar-grid"></div>
     <div class="acc-grid hidden" id="acc-grid"></div>
@@ -632,7 +658,7 @@
           <rect x="7" y="21" width="36" height="22" rx="3" fill="#FF9944" stroke="#1A1A1A" stroke-width="2.5"/>
           <rect x="17" y="27" width="16" height="16" rx="3" fill="#7BCFFF" stroke="#1A1A1A" stroke-width="2"/>
         </svg>
-        Home
+        <span data-i18n="home">Home</span>
       </button>
       <div class="score-badge">
         <svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
@@ -676,9 +702,144 @@
   /* ════════════════════════════════
      AVATAR DEFINITIONS
   ════════════════════════════════ */
+  /* ════════════════════════════════
+     INTERNATIONALIZATION (i18n)
+  ════════════════════════════════ */
+  const TRANSLATIONS = {
+    en: {
+      diffTitle:'How hard\ndo you want?', easy:'Easy', easyDesc:'Answers up to 9',
+      medium:'Medium', mediumDesc:'Answers up to 24', hard:'Hard', hardDesc:'Answers up to 100',
+      appTitle:'Number Fun!', changeDiff:'✦ Change difficulty',
+      subtitle:'What do you want to do?', add:'Add', subtract:'Take Away',
+      shop:'Shop', stars:'stars', avatarShop:'Avatar Shop',
+      back:'Back', buddiesTab:'🐾 Buddies', gearTab:'🎩 Gear',
+      weeklyGoal:'Weekly Goal', tapGoal:'Tap to choose a goal!',
+      collectPrize:'🎁 Collect Prize!', home:'Home',
+      amazing:'Amazing!', tryAgain:'Try again!',
+      goalPopupTitle:'🎯 Weekly Goal', letsGo:"Let's Go!",
+      collectPrizeBtn:'🎁 Collect Prize!', complete:'complete!', yourReward:'Your reward:',
+      goalDoneTitle:'Goal done for this week!',
+      goalDoneMsg:'You already completed your goal.\nCome back next week for a new one!',
+      ok:'👍 OK!', inProgress:'⏳ In Progress…',
+      goal0Name:'25 Correct',   goal0Desc:'Answer 25 questions right',
+      goal1Name:'50 Correct',   goal1Desc:'Answer 50 questions right',
+      goal2Name:'50 in a Row!', goal2Desc:'Get 50 right in a row (no misses)',
+      avatarFox:'Fox', avatarCat:'Cat', avatarBunny:'Bunny',
+      avatarBear:'Bear', avatarPenguin:'Penguin', avatarDino:'Dino',
+      accPartyHat:'Party Hat', accShades:'Shades', accBow:'Bow',
+      accCrown:'Crown', accWizard:'Wizard', accHalo:'Halo', accWings:'Wings',
+      owned:'Owned', equipped:'✓ On', needMore:'Need {n} more!',
+    },
+    zh: {
+      diffTitle:'你想要多难？', easy:'简单', easyDesc:'答案不超过 9',
+      medium:'中等', mediumDesc:'答案不超过 24', hard:'困难', hardDesc:'答案不超过 100',
+      appTitle:'数字乐园！', changeDiff:'✦ 更换难度',
+      subtitle:'你想做什么？', add:'加法', subtract:'减法',
+      shop:'商店', stars:'星星', avatarShop:'头像商店',
+      back:'返回', buddiesTab:'🐾 伙伴', gearTab:'🎩 装备',
+      weeklyGoal:'每周目标', tapGoal:'点击选择目标！',
+      collectPrize:'🎁 领取奖励！', home:'首页',
+      amazing:'太棒了！', tryAgain:'再试一次！',
+      goalPopupTitle:'🎯 每周目标', letsGo:'出发！',
+      collectPrizeBtn:'🎁 领取奖励！', complete:'完成！', yourReward:'你的奖励：',
+      goalDoneTitle:'本周目标完成！',
+      goalDoneMsg:'你已完成本周目标。\n下周再来挑战新目标！',
+      ok:'👍 好的！', inProgress:'⏳ 进行中…',
+      goal0Name:'答对25题',   goal0Desc:'正确回答25道题',
+      goal1Name:'答对50题',   goal1Desc:'正确回答50道题',
+      goal2Name:'连续答对50题！', goal2Desc:'连续答对50题（不能答错）',
+      avatarFox:'狐狸', avatarCat:'猫咪', avatarBunny:'兔子',
+      avatarBear:'熊熊', avatarPenguin:'企鹅', avatarDino:'恐龙',
+      accPartyHat:'派对帽', accShades:'太阳镜', accBow:'蝴蝶结',
+      accCrown:'皇冠', accWizard:'巫师帽', accHalo:'光环', accWings:'翅膀',
+      owned:'已拥有', equipped:'✓ 已装备', needMore:'还需要 {n} 个！',
+    },
+    es: {
+      diffTitle:'¿Qué tan difícil\nquieres?', easy:'Fácil', easyDesc:'Respuestas hasta 9',
+      medium:'Medio', mediumDesc:'Respuestas hasta 24', hard:'Difícil', hardDesc:'Respuestas hasta 100',
+      appTitle:'¡Números Divertidos!', changeDiff:'✦ Cambiar dificultad',
+      subtitle:'¿Qué quieres hacer?', add:'Sumar', subtract:'Restar',
+      shop:'Tienda', stars:'estrellas', avatarShop:'Tienda de Avatares',
+      back:'Atrás', buddiesTab:'🐾 Amigos', gearTab:'🎩 Accesorios',
+      weeklyGoal:'Meta Semanal', tapGoal:'¡Toca para elegir una meta!',
+      collectPrize:'🎁 ¡Recoger Premio!', home:'Inicio',
+      amazing:'¡Increíble!', tryAgain:'¡Inténtalo de nuevo!',
+      goalPopupTitle:'🎯 Meta Semanal', letsGo:'¡Vamos!',
+      collectPrizeBtn:'🎁 ¡Recoger Premio!', complete:'¡completado!', yourReward:'Tu recompensa:',
+      goalDoneTitle:'¡Meta completada esta semana!',
+      goalDoneMsg:'Ya completaste tu meta.\n¡Vuelve la próxima semana para una nueva!',
+      ok:'👍 ¡Bien!', inProgress:'⏳ En progreso…',
+      goal0Name:'25 Correctas',  goal0Desc:'Responde 25 preguntas correctamente',
+      goal1Name:'50 Correctas',  goal1Desc:'Responde 50 preguntas correctamente',
+      goal2Name:'¡50 Seguidas!', goal2Desc:'Acierta 50 seguidas (sin fallos)',
+      avatarFox:'Zorro', avatarCat:'Gato', avatarBunny:'Conejo',
+      avatarBear:'Oso', avatarPenguin:'Pingüino', avatarDino:'Dino',
+      accPartyHat:'Gorro de Fiesta', accShades:'Gafas', accBow:'Lazo',
+      accCrown:'Corona', accWizard:'Mago', accHalo:'Halo', accWings:'Alas',
+      owned:'Poseído', equipped:'✓ Puesto', needMore:'¡Necesitas {n} más!',
+    },
+    pt: {
+      diffTitle:'Quão difícil\nvocê quer?', easy:'Fácil', easyDesc:'Respostas até 9',
+      medium:'Médio', mediumDesc:'Respostas até 24', hard:'Difícil', hardDesc:'Respostas até 100',
+      appTitle:'Diversão com Números!', changeDiff:'✦ Mudar dificuldade',
+      subtitle:'O que você quer fazer?', add:'Somar', subtract:'Subtrair',
+      shop:'Loja', stars:'estrelas', avatarShop:'Loja de Avatares',
+      back:'Voltar', buddiesTab:'🐾 Amigos', gearTab:'🎩 Acessórios',
+      weeklyGoal:'Meta Semanal', tapGoal:'Toque para escolher uma meta!',
+      collectPrize:'🎁 Resgatar Prêmio!', home:'Início',
+      amazing:'Incrível!', tryAgain:'Tente de novo!',
+      goalPopupTitle:'🎯 Meta Semanal', letsGo:'Vamos!',
+      collectPrizeBtn:'🎁 Resgatar Prêmio!', complete:'concluído!', yourReward:'Sua recompensa:',
+      goalDoneTitle:'Meta concluída esta semana!',
+      goalDoneMsg:'Você já completou sua meta.\nVolte semana que vem para uma nova!',
+      ok:'👍 OK!', inProgress:'⏳ Em andamento…',
+      goal0Name:'25 Corretas',   goal0Desc:'Acerte 25 perguntas',
+      goal1Name:'50 Corretas',   goal1Desc:'Acerte 50 perguntas',
+      goal2Name:'50 Seguidas!',  goal2Desc:'Acerte 50 seguidas (sem erros)',
+      avatarFox:'Raposa', avatarCat:'Gato', avatarBunny:'Coelho',
+      avatarBear:'Urso', avatarPenguin:'Pinguim', avatarDino:'Dino',
+      accPartyHat:'Chapéu de Festa', accShades:'Óculos', accBow:'Laço',
+      accCrown:'Coroa', accWizard:'Mago', accHalo:'Halo', accWings:'Asas',
+      owned:'Comprado', equipped:'✓ Equipado', needMore:'Precisa de mais {n}!',
+    },
+  };
+
+  let currentLang = localStorage.getItem('lang') || 'en';
+
+  function t(key, vars = {}) {
+    const dict = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+    let str = (dict[key] ?? TRANSLATIONS.en[key] ?? key);
+    Object.entries(vars).forEach(([k, v]) => { str = str.replace('{' + k + '}', v); });
+    return str;
+  }
+
+  function setLang(code) {
+    currentLang = code;
+    localStorage.setItem('lang', code);
+    applyLang();
+  }
+
+  function applyLang() {
+    // Update data-i18n elements (handle \n as <br> for diffTitle)
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      const val = t(key);
+      if (key === 'diffTitle') el.innerHTML = val.replace('\n', '<br>');
+      else el.textContent = val;
+    });
+    // Update language switcher active state
+    ['en','zh','es','pt'].forEach(code => {
+      const btn = document.getElementById('lb-' + code);
+      if (btn) btn.classList.toggle('active', code === currentLang);
+    });
+    // Re-render dynamic UI if shop/goal are visible
+    updateGoalUI();
+    if (!document.getElementById('shop').classList.contains('hidden')) renderShop();
+  }
+
   const AVATARS = [
     {
-      name: 'Fox',
+      name: 'Fox', nameKey: 'avatarFox',
       svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <polygon points="18,54 34,10 56,46" fill="#FF8C00" stroke="#222" stroke-width="3" stroke-linejoin="round"/>
         <polygon points="27,47 36,22 51,43" fill="#E65C00"/>
@@ -699,7 +860,7 @@
       </svg>`
     },
     {
-      name: 'Cat',
+      name: 'Cat', nameKey: 'avatarCat',
       svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <polygon points="24,48 36,10 54,44" fill="#E8A87C" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
         <polygon points="31,43 38,18 50,40" fill="#FFB6C1"/>
@@ -724,7 +885,7 @@
       </svg>`
     },
     {
-      name: 'Bunny',
+      name: 'Bunny', nameKey: 'avatarBunny',
       svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="40" cy="30" rx="11" ry="28" fill="white" stroke="#222" stroke-width="2.5"/>
         <ellipse cx="40" cy="30" rx="5.5" ry="22" fill="#FFB6C1"/>
@@ -742,7 +903,7 @@
       </svg>`
     },
     {
-      name: 'Bear',
+      name: 'Bear', nameKey: 'avatarBear',
       svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <circle cx="26" cy="38" r="18" fill="#8B4513" stroke="#222" stroke-width="2.5"/>
         <circle cx="26" cy="38" r="11" fill="#A0522D"/>
@@ -763,7 +924,7 @@
       </svg>`
     },
     {
-      name: 'Penguin',
+      name: 'Penguin', nameKey: 'avatarPenguin',
       svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="60" cy="70" rx="46" ry="48" fill="#1A1A1A" stroke="#222" stroke-width="3"/>
         <ellipse cx="60" cy="80" rx="30" ry="36" fill="white"/>
@@ -779,7 +940,7 @@
       </svg>`
     },
     {
-      name: 'Dino',
+      name: 'Dino', nameKey: 'avatarDino',
       svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <polygon points="28,48 34,22 41,48" fill="#27AE60" stroke="#222" stroke-width="2"/>
         <polygon points="44,42 51,14 58,42" fill="#27AE60" stroke="#222" stroke-width="2"/>
@@ -900,7 +1061,7 @@
   ];
 
   const ACCESSORIES = [
-    { name: 'Party Hat', cost: 5, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    { name: 'Party Hat', nameKey: 'accPartyHat', cost: 5, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <polygon points="60,2 36,40 84,40" fill="#FF6B6B" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
         <line x1="48" y1="23" x2="52" y2="15" stroke="#FFD166" stroke-width="2.5" stroke-linecap="round"/>
         <line x1="59" y1="10" x2="63" y2="2"  stroke="#7BCFFF" stroke-width="2.5" stroke-linecap="round"/>
@@ -908,7 +1069,7 @@
         <ellipse cx="60" cy="40" rx="24" ry="7" fill="#FF9900" stroke="#222" stroke-width="2"/>
         <circle cx="60" cy="2"  r="5"  fill="#FFD166" stroke="#222" stroke-width="1.5"/>
       </svg>` },
-    { name: 'Shades', cost: 15, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    { name: 'Shades', nameKey: 'accShades', cost: 15, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <rect x="14" y="54" width="38" height="22" rx="11" fill="#1A1A1A" stroke="#222" stroke-width="2.5"/>
         <rect x="68" y="54" width="38" height="22" rx="11" fill="#1A1A1A" stroke="#222" stroke-width="2.5"/>
         <line x1="52" y1="65" x2="68" y2="65" stroke="#555" stroke-width="3" stroke-linecap="round"/>
@@ -917,20 +1078,20 @@
         <ellipse cx="33" cy="65" rx="14" ry="9" fill="#FF6B6B" opacity="0.3"/>
         <ellipse cx="87" cy="65" rx="14" ry="9" fill="#FF6B6B" opacity="0.3"/>
       </svg>` },
-    { name: 'Bow', cost: 30, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    { name: 'Bow', nameKey: 'accBow', cost: 30, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <path d="M60,18 C50,6 26,2 28,18 C30,32 52,23 60,18Z" fill="#FF6B9D" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
         <path d="M60,18 C70,6 94,2 92,18 C90,32 68,23 60,18Z" fill="#FF6B9D" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
         <circle cx="60" cy="18" r="8" fill="#FF3D7F" stroke="#222" stroke-width="2"/>
         <circle cx="60" cy="18" r="3.5" fill="#FFB6C1"/>
       </svg>` },
-    { name: 'Crown', cost: 75, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    { name: 'Crown', nameKey: 'accCrown', cost: 75, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <path d="M18,44 L28,8 L60,30 L92,8 L102,44 Z" fill="#FFD700" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
         <rect x="16" y="42" width="88" height="13" rx="5" fill="#FFC200" stroke="#222" stroke-width="2.5"/>
         <circle cx="28" cy="8"  r="6" fill="#FF4136" stroke="#222" stroke-width="1.5"/>
         <circle cx="60" cy="30" r="6" fill="#7BCFFF" stroke="#222" stroke-width="1.5"/>
         <circle cx="92" cy="8"  r="6" fill="#FF4136" stroke="#222" stroke-width="1.5"/>
       </svg>` },
-    { name: 'Wizard', cost: 150, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    { name: 'Wizard', nameKey: 'accWizard', cost: 150, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <polygon points="60,0 33,50 87,50" fill="#7B52AB" stroke="#222" stroke-width="2.5" stroke-linejoin="round"/>
         <ellipse cx="60" cy="50" rx="33" ry="9" fill="#5B3A8A" stroke="#222" stroke-width="2.5"/>
         <circle cx="48" cy="22" r="4" fill="#FFD700" opacity="0.95"/>
@@ -938,11 +1099,11 @@
         <circle cx="73" cy="36" r="3.5" fill="#7BCFFF" opacity="0.95"/>
         <path d="M40,40 Q46,32 52,40" fill="none" stroke="#FFD700" stroke-width="2.2" opacity="0.9"/>
       </svg>` },
-    { name: 'Halo', cost: 300, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    { name: 'Halo', nameKey: 'accHalo', cost: 300, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="60" cy="8" rx="36" ry="9" fill="none" stroke="#FFD700" stroke-width="7"/>
         <ellipse cx="60" cy="6" rx="36" ry="9" fill="none" stroke="#FFF0A0" stroke-width="3.5" opacity="0.8"/>
       </svg>` },
-    { name: 'Wings', cost: 500, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    { name: 'Wings', nameKey: 'accWings', cost: 500, svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <path d="M60,68 C44,52 6,56 8,76 C11,92 42,80 60,68Z" fill="#7CFC00" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
         <path d="M16,60 C9,44 22,32 36,52Z" fill="#7CFC00" stroke="#222" stroke-width="2" stroke-linejoin="round"/>
         <path d="M24,54 C18,42 26,34 36,48Z" fill="#5DC600" opacity="0.7"/>
@@ -982,6 +1143,7 @@
     updateShopBtn();
     updateGoalUI();
     setupGlitchHold();
+    applyLang();
   }
 
   function refreshAvatarDisplays() {
@@ -1039,7 +1201,7 @@
       // Briefly show "need X more" on the badge
       const badge = document.getElementById('shop-star-count');
       const orig  = badge.textContent;
-      badge.textContent = `Need ${SHOP_COST - totalStars} more!`;
+      badge.textContent = t('needMore', {n: SHOP_COST - totalStars});
       setTimeout(() => badge.textContent = orig, 1400);
       return;
     }
@@ -1069,7 +1231,7 @@
     AVATARS.forEach((av, idx) => {
       const card = document.createElement('div');
       card.className = 'avatar-card' + (idx === currentAvatarIdx ? ' selected' : '');
-      card.innerHTML = av.svg + `<span class="avatar-name">${av.name}</span>`;
+      card.innerHTML = av.svg + `<span class="avatar-name">${t(av.nameKey)}</span>`;
       if (idx === currentAvatarIdx) {
         const badge = document.createElement('div');
         badge.className = 'selected-badge';
@@ -1090,9 +1252,9 @@
       const card = document.createElement('div');
       card.className = 'acc-card' + (selected ? ' selected' : '') + (owned ? '' : ' locked');
       card.innerHTML = acc.svg +
-        `<span class="acc-name">${acc.name}</span>` +
+        `<span class="acc-name">${t(acc.nameKey)}</span>` +
         (owned
-          ? `<span class="acc-owned">${selected ? '✓ On' : 'Owned'}</span>`
+          ? `<span class="acc-owned">${selected ? t('equipped') : t('owned')}</span>`
           : `<span class="acc-cost">⭐ ${acc.cost}</span><span class="acc-lock">🔒</span>`);
       card.onclick = () => owned ? selectAccessory(idx) : buyAccessory(idx);
       grid.appendChild(card);
@@ -1134,9 +1296,9 @@
      WEEKLY GOALS
   ════════════════════════════════ */
   const GOALS = [
-    { name: '25 Correct',   desc: 'Answer 25 questions right',         target: 25, reward: 50,  type: 'total'  },
-    { name: '50 Correct',   desc: 'Answer 50 questions right',         target: 50, reward: 100, type: 'total'  },
-    { name: '50 in a Row!', desc: 'Get 50 right in a row (no misses)', target: 50, reward: 250, type: 'streak' },
+    { nameKey: 'goal0Name', descKey: 'goal0Desc', target: 25, reward: 50,  type: 'total'  },
+    { nameKey: 'goal1Name', descKey: 'goal1Desc', target: 50, reward: 100, type: 'total'  },
+    { nameKey: 'goal2Name', descKey: 'goal2Desc', target: 50, reward: 250, type: 'streak' },
   ];
 
   function getWeekKey() {
@@ -1173,54 +1335,50 @@
     container.innerHTML = '';
 
     if (goalPrizeReady) {
-      // Show "claim your prize" view
       const g = GOALS[activeGoalIdx];
       container.innerHTML = `
         <div style="text-align:center;padding:10px 0;">
           <div style="font-size:48px">🏆</div>
-          <div style="font-size:18px;font-weight:900;color:#333;margin:8px 0">${g.name} complete!</div>
-          <div style="font-size:14px;color:#777">Your reward: <strong style="color:#FF9900">⭐ ${g.reward} stars</strong></div>
+          <div style="font-size:18px;font-weight:900;color:#333;margin:8px 0">${t(g.nameKey)} ${t('complete')}</div>
+          <div style="font-size:14px;color:#777">${t('yourReward')} <strong style="color:#FF9900">⭐ ${g.reward} ${t('stars')}</strong></div>
         </div>`;
-      startBtn.textContent = '🎁 Collect Prize!';
+      startBtn.textContent = t('collectPrizeBtn');
       startBtn.onclick = collectPrize;
     } else if (goalWeekKey === getWeekKey() && activeGoalIdx < 0) {
-      // Prize already collected this week — no more goals until next week
       container.innerHTML = `
         <div style="text-align:center;padding:16px 0;">
           <div style="font-size:52px">🌟</div>
-          <div style="font-size:17px;font-weight:900;color:#333;margin:10px 0">Goal done for this week!</div>
-          <div style="font-size:13px;color:#777;line-height:1.5">You already completed your goal.<br>Come back next week for a new one!</div>
+          <div style="font-size:17px;font-weight:900;color:#333;margin:10px 0">${t('goalDoneTitle')}</div>
+          <div style="font-size:13px;color:#777;line-height:1.5">${t('goalDoneMsg').replace('\n','<br>')}</div>
         </div>`;
-      startBtn.textContent = '👍 OK!';
+      startBtn.textContent = t('ok');
       startBtn.onclick = () => document.getElementById('goal-overlay').classList.add('hidden');
     } else if (activeGoalIdx >= 0 && goalWeekKey === getWeekKey()) {
-      // Goal in progress — read-only view
       GOALS.forEach((gl, i) => {
         const card = document.createElement('div');
         card.className = 'goal-card' + (i === activeGoalIdx ? ' chosen' : '');
         card.style.pointerEvents = 'none';
         card.innerHTML = `
           <div class="goal-card-top">
-            <span class="goal-card-name">${gl.name}</span>
+            <span class="goal-card-name">${t(gl.nameKey)}</span>
             <span class="goal-card-reward">⭐ ${gl.reward}</span>
           </div>
-          <div class="goal-card-desc">${gl.desc}${i === activeGoalIdx ? ` — ${goalProgress}/${gl.target}` : ''}</div>`;
+          <div class="goal-card-desc">${t(gl.descKey)}${i === activeGoalIdx ? ` — ${goalProgress}/${gl.target}` : ''}</div>`;
         container.appendChild(card);
       });
-      startBtn.textContent = '⏳ In Progress…';
+      startBtn.textContent = t('inProgress');
       startBtn.onclick = () => document.getElementById('goal-overlay').classList.add('hidden');
     } else {
-      // New week — pick a goal
       chosenGoalIdx = -1;
       GOALS.forEach((g, i) => {
         const card = document.createElement('div');
         card.className = 'goal-card';
         card.innerHTML = `
           <div class="goal-card-top">
-            <span class="goal-card-name">${g.name}</span>
+            <span class="goal-card-name">${t(g.nameKey)}</span>
             <span class="goal-card-reward">⭐ ${g.reward}</span>
           </div>
-          <div class="goal-card-desc">${g.desc}</div>`;
+          <div class="goal-card-desc">${t(g.descKey)}</div>`;
         card.onclick = () => {
           chosenGoalIdx = i;
           document.querySelectorAll('.goal-card').forEach((c, j) =>
@@ -1228,7 +1386,7 @@
         };
         container.appendChild(card);
       });
-      startBtn.textContent = "Let's Go!";
+      startBtn.textContent = t('letsGo');
       startBtn.onclick = startGoal;
     }
     document.getElementById('goal-overlay').classList.remove('hidden');
@@ -1299,17 +1457,17 @@
     const prize = document.getElementById('prize-btn');
 
     if (goalPrizeReady) {
-      label.textContent  = GOALS[activeGoalIdx].name + ' ✅';
+      label.textContent  = t(GOALS[activeGoalIdx].nameKey) + ' ✅';
       wrap.style.display = 'none';
       prize.classList.remove('hidden');
     } else if (activeGoalIdx >= 0) {
       const goal = GOALS[activeGoalIdx];
-      label.textContent  = goal.name;
+      label.textContent  = t(goal.nameKey);
       wrap.style.display = 'block';
       fill.style.width   = Math.min(100, Math.round(goalProgress / goal.target * 100)) + '%';
       prize.classList.add('hidden');
     } else {
-      label.textContent  = 'Tap to choose a goal!';
+      label.textContent  = t('tapGoal');
       wrap.style.display = 'none';
       prize.classList.add('hidden');
     }
@@ -1560,7 +1718,7 @@
     const fb = document.getElementById('feedback');
     fb.className = 'screen ' + (correct ? 'correct-bg' : 'wrong-bg');
     document.getElementById('fb-mascot').innerHTML = correct ? SVG_HAPPY : SVG_SAD;
-    document.getElementById('fb-text').textContent  = correct ? 'Amazing!' : 'Try again!';
+    document.getElementById('fb-text').textContent  = correct ? t('amazing') : t('tryAgain');
     document.getElementById('fb-icons').innerHTML   = correct
       ? SVG_STAR + SVG_STAR + SVG_STAR
       : SVG_HEART + SVG_HEART + SVG_HEART;
