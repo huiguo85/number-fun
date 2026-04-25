@@ -1267,10 +1267,10 @@
   let difficulty     = 'easy';
   let mode           = 'add';
   let score          = 0;
-  let totalStars     = parseInt(localStorage.getItem('totalStars') || '0');
-  let currentAvatarIdx = parseInt(localStorage.getItem('avatarIdx') || '0');
-  let currentAccIdx  = parseInt(localStorage.getItem('accIdx') || '-1');
-  let ownedAccs      = new Set(JSON.parse(localStorage.getItem('ownedAccs') || '[]'));
+  let totalStars       = 0;
+  let currentAvatarIdx = 0;
+  let currentAccIdx    = -1;
+  let ownedAccs        = new Set();
   let currentShopTab = 'buddies';
   let correctAnswer  = 0;
   let currentCartoon = CARTOONS[0];
@@ -1281,6 +1281,46 @@
   ════════════════════════════════ */
   let accounts    = JSON.parse(localStorage.getItem('accounts') || '{}');
   let currentUser = localStorage.getItem('currentUser') || null;
+
+  // ── Per-user data persistence ──
+  function getUserKey() {
+    return 'ud_' + (currentUser || '__guest__');
+  }
+
+  function saveUserData() {
+    localStorage.setItem(getUserKey(), JSON.stringify({
+      totalStars,
+      avatarIdx:     currentAvatarIdx,
+      accIdx:        currentAccIdx,
+      ownedAccs:     [...ownedAccs],
+      activeGoalIdx,
+      goalProgress,
+      goalWeekKey,
+      goalPrizeReady,
+    }));
+  }
+
+  function loadUserData() {
+    const raw  = localStorage.getItem(getUserKey());
+    const data = raw ? JSON.parse(raw) : {};
+    totalStars       = parseInt(data.totalStars    ?? 0);
+    currentAvatarIdx = parseInt(data.avatarIdx     ?? 0);
+    currentAccIdx    = parseInt(data.accIdx        ?? -1);
+    ownedAccs        = new Set(data.ownedAccs      ?? []);
+    activeGoalIdx    = parseInt(data.activeGoalIdx ?? -1);
+    goalProgress     = parseInt(data.goalProgress  ?? 0);
+    goalWeekKey      = data.goalWeekKey            ?? '';
+    goalPrizeReady   = data.goalPrizeReady         === true;
+    checkWeekReset();
+  }
+
+  // Refresh every piece of UI that depends on user data
+  function refreshAllUserUI() {
+    refreshAvatarDisplays();
+    updateShopBtn();
+    updateGoalUI();
+    updateAuthUI();
+  }
 
   // Guest timer state (5 minutes = 300 seconds)
   let guestTimerInterval = null;
@@ -1309,10 +1349,10 @@
     if (yes) {
       currentUser = null;
       localStorage.removeItem('currentUser');
-      // Reset guest timer for the new guest session
       stopGuestTimer();
       guestSecondsLeft = 5 * 60;
-      updateAuthUI();
+      loadUserData();        // load guest's own saved data
+      refreshAllUserUI();
     }
   }
 
@@ -1332,8 +1372,8 @@
     currentUser = username;
     localStorage.setItem('currentUser', currentUser);
     stopGuestTimer();
-    updateAuthUI();
-    // Clear input fields
+    loadUserData();          // swap in this user's data
+    refreshAllUserUI();
     document.getElementById('signin-username').value = '';
     document.getElementById('signin-password').value = '';
     showScreen('difficulty');
@@ -1370,8 +1410,8 @@
     currentUser = username;
     localStorage.setItem('currentUser', currentUser);
     stopGuestTimer();
-    updateAuthUI();
-    // Clear fields
+    loadUserData();          // new account starts fresh
+    refreshAllUserUI();
     document.getElementById('create-username').value = '';
     document.getElementById('create-password').value = '';
     document.getElementById('create-confirm').value  = '';
@@ -1415,6 +1455,7 @@
      INIT
   ════════════════════════════════ */
   function init() {
+    loadUserData();          // populate vars from the current user's saved blob
     refreshAvatarDisplays();
     updateShopBtn();
     updateGoalUI();
@@ -1548,15 +1589,13 @@
       return;
     }
     totalStars -= acc.cost;
-    localStorage.setItem('totalStars', totalStars);
     ownedAccs.add(idx);
-    localStorage.setItem('ownedAccs', JSON.stringify([...ownedAccs]));
     selectAccessory(idx);
   }
 
   function selectAccessory(idx) {
     currentAccIdx = (currentAccIdx === idx) ? -1 : idx;
-    localStorage.setItem('accIdx', currentAccIdx);
+    saveUserData();
     refreshAvatarDisplays();
     renderAccGrid();
     document.getElementById('shop-total-stars').textContent = totalStars;
@@ -1564,7 +1603,7 @@
 
   function selectAvatar(idx) {
     currentAvatarIdx = idx;
-    localStorage.setItem('avatarIdx', idx);
+    saveUserData();
     refreshAvatarDisplays();
     renderAvatarGrid();
   }
@@ -1585,26 +1624,22 @@
     return `${d.getFullYear()}-W${week}`;
   }
 
-  let activeGoalIdx   = parseInt(localStorage.getItem('activeGoalIdx')  || '-1');
-  let goalProgress    = parseInt(localStorage.getItem('goalProgress')    || '0');
-  let goalWeekKey     = localStorage.getItem('goalWeekKey')              || '';
-  let goalPrizeReady  = localStorage.getItem('goalPrizeReady') === 'true';
-  let chosenGoalIdx   = -1;
+  let activeGoalIdx  = -1;
+  let goalProgress   = 0;
+  let goalWeekKey    = '';
+  let goalPrizeReady = false;
+  let chosenGoalIdx  = -1;
 
-  // Reset on new week (keep prize if uncollected, otherwise full reset)
-  (function checkWeekReset() {
+  // Called from loadUserData() after loading — resets stale week data
+  function checkWeekReset() {
     const cur = getWeekKey();
     if (goalWeekKey && goalWeekKey !== cur) {
       if (!goalPrizeReady) {
-        // No pending prize — full reset so a new goal can be picked
         activeGoalIdx = -1; goalProgress = 0; goalWeekKey = '';
-        localStorage.setItem('activeGoalIdx', -1);
-        localStorage.setItem('goalProgress',  0);
-        localStorage.setItem('goalWeekKey',   '');
+        saveUserData();
       }
-      // If goalPrizeReady is true, keep state so they can still collect last week's prize
     }
-  })();
+  }
 
   function openGoalPopup() {
     const container = document.getElementById('goal-cards');
@@ -1680,10 +1715,7 @@
     goalProgress  = 0;
     goalWeekKey   = getWeekKey();
     goalPrizeReady = false;
-    localStorage.setItem('activeGoalIdx',  activeGoalIdx);
-    localStorage.setItem('goalProgress',   goalProgress);
-    localStorage.setItem('goalWeekKey',    goalWeekKey);
-    localStorage.setItem('goalPrizeReady', 'false');
+    saveUserData();
     document.getElementById('goal-overlay').classList.add('hidden');
     updateGoalUI();
   }
@@ -1691,14 +1723,11 @@
   function collectPrize() {
     const reward = GOALS[activeGoalIdx].reward;
     totalStars += reward;
-    localStorage.setItem('totalStars', totalStars);
-    updateShopBtn();
     goalPrizeReady = false;
     activeGoalIdx  = -1;
     goalProgress   = 0;
-    localStorage.setItem('goalPrizeReady', 'false');
-    localStorage.setItem('activeGoalIdx',  -1);
-    localStorage.setItem('goalProgress',   0);
+    saveUserData();
+    updateShopBtn();
     document.getElementById('goal-overlay').classList.add('hidden');
     updateGoalUI();
     spawnConfetti();
@@ -1707,7 +1736,7 @@
   function recordCorrect() {
     if (activeGoalIdx < 0 || goalPrizeReady) return;
     goalProgress++;
-    localStorage.setItem('goalProgress', goalProgress);
+    saveUserData();
     updateGoalUI();
     if (goalProgress >= GOALS[activeGoalIdx].target) completeGoal();
   }
@@ -1716,14 +1745,14 @@
     if (activeGoalIdx < 0 || goalPrizeReady) return;
     if (GOALS[activeGoalIdx].type === 'streak') {
       goalProgress = 0;
-      localStorage.setItem('goalProgress', goalProgress);
+      saveUserData();
       updateGoalUI();
     }
   }
 
   function completeGoal() {
     goalPrizeReady = true;
-    localStorage.setItem('goalPrizeReady', 'true');
+    saveUserData();
     updateGoalUI();
   }
 
@@ -1966,7 +1995,7 @@
       }
       score++;
       totalStars++;
-      localStorage.setItem('totalStars', totalStars);
+      saveUserData();
       document.getElementById('score').textContent = score;
       updateShopBtn();
       recordCorrect();
