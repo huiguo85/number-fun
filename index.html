@@ -651,37 +651,37 @@
 
   <!-- SIGN IN SCREEN -->
   <div class="screen hidden" id="signin">
-    <button class="auth-back-btn" onclick="showScreen('difficulty')">← Back</button>
-    <div class="auth-title">🔑 Sign In</div>
-    <div class="auth-welcome">Welcome back!</div>
-    <input class="auth-input" id="signin-username" type="text"    placeholder="Username"    autocomplete="username"         />
-    <input class="auth-input" id="signin-password" type="password" placeholder="Password"    autocomplete="current-password" />
+    <button class="auth-back-btn" onclick="showScreen('difficulty')" data-i18n="backBtn">← Back</button>
+    <div class="auth-title" data-i18n="signInTitle">🔑 Sign In</div>
+    <div class="auth-welcome" data-i18n="signInWelcome">Welcome back!</div>
+    <input class="auth-input" id="signin-username" type="text"     data-i18n-ph="phUsername"  placeholder="Username"    autocomplete="username"         />
+    <input class="auth-input" id="signin-password" type="password" data-i18n-ph="phPassword"  placeholder="Password"    autocomplete="current-password" />
     <div class="auth-error hidden" id="signin-error"></div>
-    <button class="auth-submit-btn" onclick="attemptSignIn()">Sign In ✓</button>
-    <div class="auth-or">or</div>
-    <button class="auth-create-btn" onclick="showScreen('create-account')">✨ Create an Account</button>
+    <button class="auth-submit-btn" onclick="attemptSignIn()" data-i18n="signInSubmit">Sign In ✓</button>
+    <div class="auth-or" data-i18n="orText">or</div>
+    <button class="auth-create-btn" onclick="showScreen('create-account')" data-i18n="createAccountLink">✨ Create an Account</button>
   </div>
 
   <!-- CREATE ACCOUNT SCREEN -->
   <div class="screen hidden" id="create-account">
-    <button class="auth-back-btn" onclick="showScreen('signin')">← Back</button>
-    <div class="auth-title">✨ Create Account</div>
-    <div class="auth-welcome">Join the fun!</div>
-    <input class="auth-input" id="create-username" type="text"    placeholder="Choose a Username"     autocomplete="username"         />
-    <input class="auth-input" id="create-password" type="password" placeholder="Choose a Password"     autocomplete="new-password"     />
-    <input class="auth-input" id="create-confirm"  type="password" placeholder="Re-type your Password"  autocomplete="new-password"     />
+    <button class="auth-back-btn" onclick="showScreen('signin')" data-i18n="backBtn">← Back</button>
+    <div class="auth-title" data-i18n="createTitle">✨ Create Account</div>
+    <div class="auth-welcome" data-i18n="createWelcome">Join the fun!</div>
+    <input class="auth-input" id="create-username" type="text"     data-i18n-ph="phChooseUser" placeholder="Choose a Username"    autocomplete="username"     />
+    <input class="auth-input" id="create-password" type="password" data-i18n-ph="phChoosePass" placeholder="Choose a Password"    autocomplete="new-password" />
+    <input class="auth-input" id="create-confirm"  type="password" data-i18n-ph="phRetypePass" placeholder="Re-type your Password" autocomplete="new-password" />
     <div class="auth-error hidden" id="create-error"></div>
-    <button class="auth-submit-btn" onclick="attemptCreateAccount()">Create Account 🎉</button>
+    <button class="auth-submit-btn" onclick="attemptCreateAccount()" data-i18n="createSubmit">Create Account 🎉</button>
   </div>
 
   <!-- SIGN OUT CONFIRMATION -->
   <div class="signout-overlay hidden" id="signout-overlay">
     <div class="signout-popup">
       <div class="signout-icon">🚪</div>
-      <div class="signout-title">Are you sure you want to sign out?</div>
+      <div class="signout-title" data-i18n="signOutQuestion">Are you sure you want to sign out?</div>
       <div class="signout-btns">
-        <button class="signout-yes" onclick="confirmSignOut(true)">Yes</button>
-        <button class="signout-no"  onclick="confirmSignOut(false)">No</button>
+        <button class="signout-yes" onclick="confirmSignOut(true)"  data-i18n="yes">Yes</button>
+        <button class="signout-no"  onclick="confirmSignOut(false)" data-i18n="no">No</button>
       </div>
     </div>
   </div>
@@ -870,6 +870,23 @@
       accPartyHat:'Party Hat', accShades:'Shades', accBow:'Bow',
       accCrown:'Crown', accWizard:'Wizard', accHalo:'Halo', accWings:'Wings',
       owned:'Owned', equipped:'✓ On', needMore:'Need {n} more!',
+      signInTitle:'🔑 Sign In', signInWelcome:'Welcome back!',
+      signInSubmit:'Sign In ✓', orText:'or', createAccountLink:'✨ Create an Account',
+      createTitle:'✨ Create Account', createWelcome:'Join the fun!',
+      createSubmit:'Create Account 🎉',
+      signOutQuestion:'Are you sure you want to sign out?', yes:'Yes', no:'No',
+      backBtn:'← Back',
+      phUsername:'Username', phPassword:'Password',
+      phChooseUser:'Choose a Username', phChoosePass:'Choose a Password',
+      phRetypePass:'Re-type your Password',
+      authSignIn:'🔑 Sign In', authSignOut:'Sign Out',
+      errFillBoth:'⚠️ Please fill in both fields!',
+      errFillAll:'⚠️ Please fill in all fields!',
+      errWrongLogin:'❌ Wrong username or password!',
+      errUserTooShort:'⚠️ Username must be at least 3 characters!',
+      errPassTooShort:'⚠️ Password must be at least 4 characters!',
+      errPassMismatch:"❌ Passwords don't match — try again!",
+      errUserTaken:'❌ That username is already taken!',
     },
     zh: {
       diffTitle:'你想要多难？', easy:'简单', easyDesc:'答案不超过 9',
@@ -894,6 +911,23 @@
       accPartyHat:'派对帽', accShades:'太阳镜', accBow:'蝴蝶结',
       accCrown:'皇冠', accWizard:'巫师帽', accHalo:'光环', accWings:'翅膀',
       owned:'已拥有', equipped:'✓ 已装备', needMore:'还需要 {n} 个！',
+      signInTitle:'🔑 登录', signInWelcome:'欢迎回来！',
+      signInSubmit:'登录 ✓', orText:'或', createAccountLink:'✨ 创建账号',
+      createTitle:'✨ 创建账号', createWelcome:'加入我们！',
+      createSubmit:'创建账号 🎉',
+      signOutQuestion:'确定要退出登录吗？', yes:'是', no:'否',
+      backBtn:'← 返回',
+      phUsername:'用户名', phPassword:'密码',
+      phChooseUser:'选择用户名', phChoosePass:'选择密码',
+      phRetypePass:'再次输入密码',
+      authSignIn:'🔑 登录', authSignOut:'退出',
+      errFillBoth:'⚠️ 请填写两个字段！',
+      errFillAll:'⚠️ 请填写所有字段！',
+      errWrongLogin:'❌ 用户名或密码错误！',
+      errUserTooShort:'⚠️ 用户名至少需要 3 个字符！',
+      errPassTooShort:'⚠️ 密码至少需要 4 个字符！',
+      errPassMismatch:'❌ 密码不匹配，请重试！',
+      errUserTaken:'❌ 该用户名已被使用！',
     },
     es: {
       diffTitle:'¿Qué tan difícil\nquieres?', easy:'Fácil', easyDesc:'Respuestas hasta 9',
@@ -918,6 +952,23 @@
       accPartyHat:'Gorro de Fiesta', accShades:'Gafas', accBow:'Lazo',
       accCrown:'Corona', accWizard:'Mago', accHalo:'Halo', accWings:'Alas',
       owned:'Poseído', equipped:'✓ Puesto', needMore:'¡Necesitas {n} más!',
+      signInTitle:'🔑 Iniciar Sesión', signInWelcome:'¡Bienvenido de nuevo!',
+      signInSubmit:'Iniciar Sesión ✓', orText:'o', createAccountLink:'✨ Crear una Cuenta',
+      createTitle:'✨ Crear Cuenta', createWelcome:'¡Únete a la diversión!',
+      createSubmit:'Crear Cuenta 🎉',
+      signOutQuestion:'¿Estás seguro de que quieres cerrar sesión?', yes:'Sí', no:'No',
+      backBtn:'← Atrás',
+      phUsername:'Usuario', phPassword:'Contraseña',
+      phChooseUser:'Elige un Usuario', phChoosePass:'Elige una Contraseña',
+      phRetypePass:'Re-escribe tu Contraseña',
+      authSignIn:'🔑 Iniciar Sesión', authSignOut:'Cerrar Sesión',
+      errFillBoth:'⚠️ ¡Por favor completa ambos campos!',
+      errFillAll:'⚠️ ¡Por favor completa todos los campos!',
+      errWrongLogin:'❌ ¡Usuario o contraseña incorrectos!',
+      errUserTooShort:'⚠️ ¡El usuario debe tener al menos 3 caracteres!',
+      errPassTooShort:'⚠️ ¡La contraseña debe tener al menos 4 caracteres!',
+      errPassMismatch:'❌ ¡Las contraseñas no coinciden!',
+      errUserTaken:'❌ ¡Ese nombre de usuario ya está tomado!',
     },
     pt: {
       diffTitle:'Quão difícil\nvocê quer?', easy:'Fácil', easyDesc:'Respostas até 9',
@@ -942,6 +993,23 @@
       accPartyHat:'Chapéu de Festa', accShades:'Óculos', accBow:'Laço',
       accCrown:'Coroa', accWizard:'Mago', accHalo:'Halo', accWings:'Asas',
       owned:'Comprado', equipped:'✓ Equipado', needMore:'Precisa de mais {n}!',
+      signInTitle:'🔑 Entrar', signInWelcome:'Bem-vindo de volta!',
+      signInSubmit:'Entrar ✓', orText:'ou', createAccountLink:'✨ Criar uma Conta',
+      createTitle:'✨ Criar Conta', createWelcome:'Junte-se à diversão!',
+      createSubmit:'Criar Conta 🎉',
+      signOutQuestion:'Tem certeza que quer sair?', yes:'Sim', no:'Não',
+      backBtn:'← Voltar',
+      phUsername:'Usuário', phPassword:'Senha',
+      phChooseUser:'Escolha um Usuário', phChoosePass:'Escolha uma Senha',
+      phRetypePass:'Re-escreva sua Senha',
+      authSignIn:'🔑 Entrar', authSignOut:'Sair',
+      errFillBoth:'⚠️ Por favor preencha ambos os campos!',
+      errFillAll:'⚠️ Por favor preencha todos os campos!',
+      errWrongLogin:'❌ Usuário ou senha incorretos!',
+      errUserTooShort:'⚠️ O usuário deve ter pelo menos 3 caracteres!',
+      errPassTooShort:'⚠️ A senha deve ter pelo menos 4 caracteres!',
+      errPassMismatch:'❌ As senhas não coincidem!',
+      errUserTaken:'❌ Esse nome de usuário já está em uso!',
     },
   };
 
@@ -961,20 +1029,25 @@
   }
 
   function applyLang() {
-    // Update data-i18n elements (handle \n as <br> for diffTitle)
+    // Update data-i18n text elements
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       const val = t(key);
       if (key === 'diffTitle') el.innerHTML = val.replace('\n', '<br>');
       else el.textContent = val;
     });
+    // Update data-i18n-ph placeholder attributes
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+      el.placeholder = t(el.getAttribute('data-i18n-ph'));
+    });
     // Update language switcher active state
     ['en','zh','es','pt'].forEach(code => {
       const btn = document.getElementById('lb-' + code);
       if (btn) btn.classList.toggle('active', code === currentLang);
     });
-    // Re-render dynamic UI if shop/goal are visible
+    // Re-render dynamic UI
     updateGoalUI();
+    updateAuthUI();
     if (!document.getElementById('shop').classList.contains('hidden')) renderShop();
   }
 
@@ -1330,11 +1403,11 @@
     const btn = document.getElementById('auth-btn');
     if (!btn) return;
     if (currentUser) {
-      btn.innerHTML = '👤 ' + currentUser + ' &nbsp;|&nbsp; Sign Out';
+      btn.innerHTML = '👤 ' + currentUser + ' &nbsp;|&nbsp; ' + t('authSignOut');
       btn.className = 'auth-btn auth-btn-signout';
       btn.onclick   = showSignOutConfirm;
     } else {
-      btn.innerHTML = '🔑 Sign In';
+      btn.innerHTML = t('authSignIn');
       btn.className = 'auth-btn auth-btn-signin';
       btn.onclick   = () => showScreen('signin');
     }
@@ -1361,11 +1434,11 @@
     const password = document.getElementById('signin-password').value;
     const err      = document.getElementById('signin-error');
     if (!username || !password) {
-      err.textContent = '⚠️ Please fill in both fields!';
+      err.textContent = t('errFillBoth');
       err.classList.remove('hidden'); return;
     }
     if (!accounts[username] || accounts[username] !== password) {
-      err.textContent = '❌ Wrong username or password!';
+      err.textContent = t('errWrongLogin');
       err.classList.remove('hidden'); return;
     }
     err.classList.add('hidden');
@@ -1385,23 +1458,23 @@
     const confirm  = document.getElementById('create-confirm').value;
     const err      = document.getElementById('create-error');
     if (!username || !password || !confirm) {
-      err.textContent = '⚠️ Please fill in all fields!';
+      err.textContent = t('errFillAll');
       err.classList.remove('hidden'); return;
     }
     if (username.length < 3) {
-      err.textContent = '⚠️ Username must be at least 3 characters!';
+      err.textContent = t('errUserTooShort');
       err.classList.remove('hidden'); return;
     }
     if (password.length < 4) {
-      err.textContent = '⚠️ Password must be at least 4 characters!';
+      err.textContent = t('errPassTooShort');
       err.classList.remove('hidden'); return;
     }
     if (password !== confirm) {
-      err.textContent = '❌ Passwords don\'t match — try again!';
+      err.textContent = t('errPassMismatch');
       err.classList.remove('hidden'); return;
     }
     if (accounts[username]) {
-      err.textContent = '❌ That username is already taken!';
+      err.textContent = t('errUserTaken');
       err.classList.remove('hidden'); return;
     }
     err.classList.add('hidden');
