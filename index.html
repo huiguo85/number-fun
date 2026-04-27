@@ -907,6 +907,7 @@
       errPassTooShort:'⚠️ Password must be at least 4 characters!',
       errPassMismatch:"❌ Passwords don't match — try again!",
       errUserTaken:'❌ That username is already taken!',
+      errReservedName:'❌ That username is reserved!',
     },
     zh: {
       diffTitle:'你想要多难？', easy:'简单', easyDesc:'答案不超过 9',
@@ -949,6 +950,7 @@
       errPassTooShort:'⚠️ 密码至少需要 4 个字符！',
       errPassMismatch:'❌ 密码不匹配，请重试！',
       errUserTaken:'❌ 该用户名已被使用！',
+      errReservedName:'❌ 该用户名已被保留！',
     },
     es: {
       diffTitle:'¿Qué tan difícil\nquieres?', easy:'Fácil', easyDesc:'Respuestas hasta 9',
@@ -991,6 +993,7 @@
       errPassTooShort:'⚠️ ¡La contraseña debe tener al menos 4 caracteres!',
       errPassMismatch:'❌ ¡Las contraseñas no coinciden!',
       errUserTaken:'❌ ¡Ese nombre de usuario ya está tomado!',
+      errReservedName:'❌ ¡Ese nombre de usuario está reservado!',
     },
     pt: {
       diffTitle:'Quão difícil\nvocê quer?', easy:'Fácil', easyDesc:'Respostas até 9',
@@ -1033,6 +1036,7 @@
       errPassTooShort:'⚠️ A senha deve ter pelo menos 4 caracteres!',
       errPassMismatch:'❌ As senhas não coincidem!',
       errUserTaken:'❌ Esse nome de usuário já está em uso!',
+      errReservedName:'❌ Esse nome de usuário é reservado!',
     },
   };
 
@@ -1412,7 +1416,17 @@
   /* ════════════════════════════════
      AUTH
   ════════════════════════════════ */
+  // Admin is a built-in account hardcoded here so it works on EVERY device.
+  // No one can register the username "Admin" — it's always reserved.
+  const ADMIN_USERNAME = 'Admin';
+  const ADMIN_PASSWORD = 'numfun2026';
+
   let accounts    = JSON.parse(localStorage.getItem('accounts') || '{}');
+  // Migration: remove any old localStorage-stored Admin entry
+  if (accounts[ADMIN_USERNAME]) {
+    delete accounts[ADMIN_USERNAME];
+    localStorage.setItem('accounts', JSON.stringify(accounts));
+  }
   let currentUser = localStorage.getItem('currentUser') || null;
 
   // ── Per-user data persistence ──
@@ -1497,7 +1511,11 @@
       err.textContent = t('errFillBoth');
       err.classList.remove('hidden'); return;
     }
-    if (!accounts[username] || accounts[username] !== password) {
+    // Admin is a hardcoded built-in account — works on every device
+    const valid = (username === ADMIN_USERNAME)
+      ? (password === ADMIN_PASSWORD)
+      : (accounts[username] && accounts[username] === password);
+    if (!valid) {
       err.textContent = t('errWrongLogin');
       err.classList.remove('hidden'); return;
     }
@@ -1505,7 +1523,7 @@
     currentUser = username;
     localStorage.setItem('currentUser', currentUser);
     stopGuestTimer();
-    loadUserData();          // swap in this user's data
+    loadUserData();
     refreshAllUserUI();
     document.getElementById('signin-username').value = '';
     document.getElementById('signin-password').value = '';
@@ -1519,6 +1537,10 @@
     const err      = document.getElementById('create-error');
     if (!username || !password || !confirm) {
       err.textContent = t('errFillAll');
+      err.classList.remove('hidden'); return;
+    }
+    if (username === ADMIN_USERNAME) {
+      err.textContent = t('errReservedName');
       err.classList.remove('hidden'); return;
     }
     if (username.length < 3) {
