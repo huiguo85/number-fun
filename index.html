@@ -1748,7 +1748,7 @@
         `<span class="acc-name">${t(acc.nameKey)}</span>` +
         bottomLabel;
 
-      card.onclick = () => selectAccessory(idx);
+      card.onclick = () => owned ? selectAccessory(idx) : buyAccessory(idx);
       grid.appendChild(card);
     });
   }
