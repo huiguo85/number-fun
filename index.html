@@ -10,10 +10,8 @@
     body {
       font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
       background: #FFF9F0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      width: 100dvw;
+      height: 100dvh;
       overflow: hidden;
     }
 
@@ -23,7 +21,11 @@
       border-radius: 40px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.2);
       overflow: hidden;
-      position: relative;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transform-origin: center center;
     }
 
     .screen {
@@ -510,8 +512,6 @@
       100% { transform: translateY(900px) rotate(720deg); opacity: 0; }
     }
 
-    @media (max-height: 860px) { .phone { transform: scale(0.9); transform-origin: center; } }
-    @media (max-height: 780px) { .phone { transform: scale(0.8); transform-origin: center; } }
 
     /* ── AUTH BUTTON (difficulty screen) ── */
     .auth-btn {
@@ -1689,6 +1689,24 @@
   /* ════════════════════════════════
      INIT
   ════════════════════════════════ */
+  /* ════════════════════════════════
+     RESPONSIVE SIZING
+  ════════════════════════════════ */
+  function resizePhone() {
+    const phone  = document.querySelector('.phone');
+    const scaleW = window.innerWidth  / 390;
+    const scaleH = window.innerHeight / 844;
+    // Fit within the viewport, cap at 1.4× on large screens
+    const scale  = Math.min(scaleW, scaleH, 1.4);
+    phone.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    // On true small-screen phones remove the decorative chrome
+    const smallPhone = window.innerWidth < 500 && scaleW <= 1.1;
+    phone.style.borderRadius = smallPhone ? '0' : '';
+    phone.style.boxShadow    = smallPhone ? 'none' : '';
+  }
+  window.addEventListener('resize', resizePhone);
+  window.addEventListener('orientationchange', resizePhone);
+
   function init() {
     loadUserData();          // populate vars from the current user's saved blob
     refreshAvatarDisplays();
@@ -1697,6 +1715,7 @@
     setupGlitchHold();
     applyLang();
     updateAuthUI();
+    resizePhone();
   }
 
   function refreshAvatarDisplays() {
