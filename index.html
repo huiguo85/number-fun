@@ -1716,6 +1716,7 @@
     applyLang();
     updateAuthUI();
     resizePhone();
+    showScreen('difficulty'); // sets body background for the initial screen
   }
 
   function refreshAvatarDisplays() {
@@ -2316,6 +2317,9 @@
     ['difficulty','home','shop','problem','feedback','signin','create-account','change-password'].forEach(s => {
       document.getElementById(s).classList.toggle('hidden', s !== id);
     });
+    // Match body background to the active screen so the colour fills the whole viewport
+    const activeEl = document.getElementById(id);
+    if (activeEl) document.body.style.background = getComputedStyle(activeEl).background;
     // Show guest timer only on problem screen when not signed in
     const guestBar = document.getElementById('guest-timer-bar');
     if (guestBar) guestBar.classList.toggle('hidden', id !== 'problem' || !!currentUser);
