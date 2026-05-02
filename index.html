@@ -405,6 +405,11 @@
 
     .objects-row { display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; justify-content: center; }
     .object-group { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; max-width: 128px; }
+    .obj-count {
+      flex: 0 0 100%; text-align: center;
+      font-size: 26px; font-weight: 900; color: #333;
+      margin-top: 4px; line-height: 1;
+    }
 
     .obj {
       width: 40px; height: 40px; animation: popIn 0.3s ease both;
@@ -2178,6 +2183,11 @@
       div.style.animationDelay = (i * 0.06) + 's';
       el.appendChild(div);
     }
+    // Count label below the objects
+    const label = document.createElement('div');
+    label.className = 'obj-count';
+    label.textContent = count;
+    el.appendChild(label);
   }
 
   function buildAnswerGrid(correct, step, max) {
