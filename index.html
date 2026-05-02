@@ -154,7 +154,7 @@
 
     .subtitle { font-size: 20px; font-weight: 700; color: #7B3F00; }
 
-    .home-buttons { display: flex; gap: 20px; }
+    .home-buttons { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
 
     .mode-btn {
       width: 135px; height: 135px; border-radius: 36px; border: 3.5px solid #222;
@@ -167,6 +167,8 @@
     .mode-btn svg { width: 60px; height: 60px; }
     .btn-add { background: #06D6A0; }
     .btn-sub { background: #EF476F; }
+    .btn-mul { background: #7B2FBE; }
+    .op-mul  { background: #7B2FBE; }
     .mode-label { font-size: 15px; font-weight: 900; color: white; text-shadow: 1px 1px 0 rgba(0,0,0,0.2); }
 
     /* ── SHOP SCREEN ── */
@@ -766,6 +768,13 @@
         </svg>
         <span class="mode-label" data-i18n="subtract">Take Away</span>
       </button>
+      <button class="mode-btn btn-mul" onclick="startGame('mul')">
+        <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+          <line x1="12" y1="12" x2="48" y2="48" stroke="white" stroke-width="9" stroke-linecap="round"/>
+          <line x1="48" y1="12" x2="12" y2="48" stroke="white" stroke-width="9" stroke-linecap="round"/>
+        </svg>
+        <span class="mode-label" data-i18n="multiply">Multiply</span>
+      </button>
     </div>
 
     <button class="goal-btn" id="goal-btn" onclick="openGoalPopup()">
@@ -899,7 +908,7 @@
       diffTitle:'How hard\ndo you want?', easy:'Easy', easyDesc:'Answers up to 9',
       medium:'Medium', mediumDesc:'Answers up to 24', hard:'Hard', hardDesc:'Answers up to 100',
       appTitle:'Number Fun!', changeDiff:'✦ Change difficulty',
-      subtitle:'What do you want to do?', add:'Add', subtract:'Take Away',
+      subtitle:'What do you want to do?', add:'Add', subtract:'Take Away', multiply:'Multiply',
       shop:'Shop', stars:'stars', avatarShop:'Avatar Shop',
       back:'Back', buddiesTab:'🐾 Buddies', gearTab:'🎩 Gear',
       weeklyGoal:'Weekly Goal', tapGoal:'Tap to choose a goal!',
@@ -946,7 +955,7 @@
       diffTitle:'你想要多难？', easy:'简单', easyDesc:'答案不超过 9',
       medium:'中等', mediumDesc:'答案不超过 24', hard:'困难', hardDesc:'答案不超过 100',
       appTitle:'数字乐园！', changeDiff:'✦ 更换难度',
-      subtitle:'你想做什么？', add:'加法', subtract:'减法',
+      subtitle:'你想做什么？', add:'加法', subtract:'减法', multiply:'乘法',
       shop:'商店', stars:'星星', avatarShop:'头像商店',
       back:'返回', buddiesTab:'🐾 伙伴', gearTab:'🎩 装备',
       weeklyGoal:'每周目标', tapGoal:'点击选择目标！',
@@ -993,7 +1002,7 @@
       diffTitle:'¿Qué tan difícil\nquieres?', easy:'Fácil', easyDesc:'Respuestas hasta 9',
       medium:'Medio', mediumDesc:'Respuestas hasta 24', hard:'Difícil', hardDesc:'Respuestas hasta 100',
       appTitle:'¡Números Divertidos!', changeDiff:'✦ Cambiar dificultad',
-      subtitle:'¿Qué quieres hacer?', add:'Sumar', subtract:'Restar',
+      subtitle:'¿Qué quieres hacer?', add:'Sumar', subtract:'Restar', multiply:'Multiplicar',
       shop:'Tienda', stars:'estrellas', avatarShop:'Tienda de Avatares',
       back:'Atrás', buddiesTab:'🐾 Amigos', gearTab:'🎩 Accesorios',
       weeklyGoal:'Meta Semanal', tapGoal:'¡Toca para elegir una meta!',
@@ -1040,7 +1049,7 @@
       diffTitle:'Quão difícil\nvocê quer?', easy:'Fácil', easyDesc:'Respostas até 9',
       medium:'Médio', mediumDesc:'Respostas até 24', hard:'Difícil', hardDesc:'Respostas até 100',
       appTitle:'Diversão com Números!', changeDiff:'✦ Mudar dificuldade',
-      subtitle:'O que você quer fazer?', add:'Somar', subtract:'Subtrair',
+      subtitle:'O que você quer fazer?', add:'Somar', subtract:'Subtrair', multiply:'Multiplicar',
       shop:'Loja', stars:'estrelas', avatarShop:'Loja de Avatares',
       back:'Voltar', buddiesTab:'🐾 Amigos', gearTab:'🎩 Acessórios',
       weeklyGoal:'Meta Semanal', tapGoal:'Toque para escolher uma meta!',
@@ -1259,6 +1268,11 @@
 
   const SVG_MINUS = `<svg viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
     <rect x="3" y="17" width="36" height="8" rx="4" fill="white" stroke="#1A1A1A" stroke-width="2"/>
+  </svg>`;
+
+  const SVG_TIMES = `<svg viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
+    <line x1="7" y1="7" x2="35" y2="35" stroke="white" stroke-width="7" stroke-linecap="round"/>
+    <line x1="35" y1="7" x2="7" y2="35" stroke="white" stroke-width="7" stroke-linecap="round"/>
   </svg>`;
 
   const SVG_HAPPY = `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
@@ -2135,21 +2149,28 @@
       a = randInt(1, max - 1);
       b = randInt(1, max - a);
       correctAnswer = a + b;
-    } else {
+    } else if (mode === 'sub') {
       a = randInt(2, max);
       b = randInt(1, a - 1);
       correctAnswer = a - b;
+    } else {
+      // Multiply: pick a,b so a×b ≤ max
+      const sqrtMax = Math.max(2, Math.floor(Math.sqrt(max)));
+      a = randInt(1, sqrtMax);
+      b = randInt(1, Math.floor(max / a));
+      correctAnswer = a * b;
     }
 
     // Update operator
     const opEl = document.getElementById('op-sign');
-    opEl.className = 'operator-sign ' + (mode === 'add' ? 'op-add' : 'op-sub');
-    opEl.innerHTML = mode === 'add' ? SVG_PLUS : SVG_MINUS;
+    opEl.className = 'operator-sign ' + (mode === 'add' ? 'op-add' : mode === 'sub' ? 'op-sub' : 'op-mul');
+    opEl.innerHTML = mode === 'add' ? SVG_PLUS : mode === 'sub' ? SVG_MINUS : SVG_TIMES;
 
     // Update groups (never rebuild objects-row structure)
     const gA = document.getElementById('group-a');
     const gB = document.getElementById('group-b');
-    if (difficulty === 'easy') {
+    // Multiply always shows numbers (counting objects makes no sense for ×)
+    if (difficulty === 'easy' && mode !== 'mul') {
       renderGroup('group-a', a);
       renderGroup('group-b', b);
     } else {
@@ -2161,7 +2182,7 @@
     box.textContent = '?';
     box.className   = 'answer-box';
 
-    if (difficulty === 'easy') {
+    if (difficulty === 'easy' && mode !== 'mul') {
       document.getElementById('answer-grid').classList.remove('hidden');
       document.getElementById('numpad').classList.add('hidden');
       buildAnswerGrid(correctAnswer, cfg.distractorStep, max);
