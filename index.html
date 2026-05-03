@@ -503,6 +503,7 @@
     }
 
     .feedback-text { font-size: 46px; font-weight: 900; color: white; text-shadow: 3px 3px 0 rgba(0,0,0,0.18); text-align: center; }
+    .fb-speed { font-size: 21px; font-weight: 900; color: rgba(255,255,255,0.92); text-shadow: 1px 1px 0 rgba(0,0,0,0.15); text-align: center; min-height: 28px; }
 
     .fb-icons { display: flex; gap: 12px; animation: pulse 1s infinite; }
     .fb-icons svg { width: 54px; height: 54px; }
@@ -892,6 +893,7 @@
     <div class="confetti-container" id="confetti"></div>
     <div class="feedback-mascot" id="fb-mascot"></div>
     <div class="feedback-text"   id="fb-text">Amazing!</div>
+    <div class="fb-speed"        id="fb-speed"></div>
     <div class="fb-icons"        id="fb-icons"></div>
   </div>
 
@@ -914,6 +916,7 @@
       weeklyGoal:'Weekly Goal', tapGoal:'Tap to choose a goal!',
       collectPrize:'🎁 Collect Prize!', home:'Home',
       amazing:'Amazing!', tryAgain:'Try again!',
+      speedSlow:'A bit slow... 🐢', speedAmazing:'Amazing! ⚡', speedFast:'Fast! 🚀', speedVeryFast:'Very fast! 🔥', speedCheating:'Are you cheating? 🤔',
       goalPopupTitle:'🎯 Weekly Goal', letsGo:"Let's Go!",
       collectPrizeBtn:'🎁 Collect Prize!', complete:'complete!', yourReward:'Your reward:',
       goalDoneTitle:'Goal done for this week!',
@@ -961,6 +964,7 @@
       weeklyGoal:'每周目标', tapGoal:'点击选择目标！',
       collectPrize:'🎁 领取奖励！', home:'首页',
       amazing:'太棒了！', tryAgain:'再试一次！',
+      speedSlow:'有点慢... 🐢', speedAmazing:'太厉害了！⚡', speedFast:'好快！🚀', speedVeryFast:'超级快！🔥', speedCheating:'你在作弊吗？🤔',
       goalPopupTitle:'🎯 每周目标', letsGo:'出发！',
       collectPrizeBtn:'🎁 领取奖励！', complete:'完成！', yourReward:'你的奖励：',
       goalDoneTitle:'本周目标完成！',
@@ -1008,6 +1012,7 @@
       weeklyGoal:'Meta Semanal', tapGoal:'¡Toca para elegir una meta!',
       collectPrize:'🎁 ¡Recoger Premio!', home:'Inicio',
       amazing:'¡Increíble!', tryAgain:'¡Inténtalo de nuevo!',
+      speedSlow:'Un poco lento... 🐢', speedAmazing:'¡Increíble! ⚡', speedFast:'¡Rápido! 🚀', speedVeryFast:'¡Muy rápido! 🔥', speedCheating:'¿Estás haciendo trampa? 🤔',
       goalPopupTitle:'🎯 Meta Semanal', letsGo:'¡Vamos!',
       collectPrizeBtn:'🎁 ¡Recoger Premio!', complete:'¡completado!', yourReward:'Tu recompensa:',
       goalDoneTitle:'¡Meta completada esta semana!',
@@ -1055,6 +1060,7 @@
       weeklyGoal:'Meta Semanal', tapGoal:'Toque para escolher uma meta!',
       collectPrize:'🎁 Resgatar Prêmio!', home:'Início',
       amazing:'Incrível!', tryAgain:'Tente de novo!',
+      speedSlow:'Um pouco lento... 🐢', speedAmazing:'Incrível! ⚡', speedFast:'Rápido! 🚀', speedVeryFast:'Muito rápido! 🔥', speedCheating:'Você está trapaceando? 🤔',
       goalPopupTitle:'🎯 Meta Semanal', letsGo:'Vamos!',
       collectPrizeBtn:'🎁 Resgatar Prêmio!', complete:'concluído!', yourReward:'Sua recompensa:',
       goalDoneTitle:'Meta concluída esta semana!',
@@ -1470,7 +1476,8 @@
   let currentShopTab = 'buddies';
   let correctAnswer  = 0;
   let currentCartoon = CARTOONS[0];
-  let isProcessing   = false;
+  let isProcessing      = false;
+  let questionStartTime = 0;
 
   /* ════════════════════════════════
      AUTH
@@ -2138,7 +2145,8 @@
   }
 
   function nextQuestion() {
-    isProcessing   = false;
+    isProcessing      = false;
+    questionStartTime = Date.now();
     currentCartoon = CARTOONS[Math.floor(Math.random() * CARTOONS.length)];
 
     const cfg = DIFF_CONFIG[difficulty];
@@ -2283,6 +2291,7 @@
   function checkAnswer(chosen, btn) {
     if (isProcessing) return;
     isProcessing = true;
+    const elapsedSecs = Math.round((Date.now() - questionStartTime) / 1000);
     document.querySelectorAll('.ans-btn').forEach(b => b.onclick = null);
 
     const box = document.getElementById('answer-box');
@@ -2304,7 +2313,7 @@
       document.getElementById('score').textContent = score;
       updateShopBtn();
       recordCorrect();
-      setTimeout(() => showFeedback(true), 400);
+      setTimeout(() => showFeedback(true, elapsedSecs), 400);
     } else {
       if (!isNumpad) {
         btn.className = 'ans-btn wrong';
@@ -2322,15 +2331,25 @@
         }, 500);
       }
       recordWrong();
-      setTimeout(() => showFeedback(false), 800);
+      setTimeout(() => showFeedback(false, elapsedSecs), 800);
     }
   }
 
-  function showFeedback(correct) {
+  function speedLabel(secs) {
+    if (secs < 1)   return '';
+    if (secs <= 4)  return t('speedCheating');
+    if (secs <= 9)  return t('speedVeryFast');
+    if (secs <= 29) return t('speedFast');
+    if (secs <= 59) return t('speedAmazing');
+    return t('speedSlow');
+  }
+
+  function showFeedback(correct, secs) {
     const fb = document.getElementById('feedback');
     fb.className = 'screen ' + (correct ? 'correct-bg' : 'wrong-bg');
     document.getElementById('fb-mascot').innerHTML = correct ? SVG_HAPPY : SVG_SAD;
     document.getElementById('fb-text').textContent  = correct ? t('amazing') : t('tryAgain');
+    document.getElementById('fb-speed').textContent = speedLabel(secs ?? 0);
     document.getElementById('fb-icons').innerHTML   = correct
       ? SVG_STAR + SVG_STAR + SVG_STAR
       : SVG_HEART + SVG_HEART + SVG_HEART;
