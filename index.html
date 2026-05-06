@@ -2349,7 +2349,14 @@
     fb.className = 'screen ' + (correct ? 'correct-bg' : 'wrong-bg');
     document.getElementById('fb-mascot').innerHTML = correct ? SVG_HAPPY : SVG_SAD;
     document.getElementById('fb-text').textContent  = correct ? t('amazing') : t('tryAgain');
-    document.getElementById('fb-speed').textContent = correct ? speedLabel(secs ?? 0) : '';
+    const speedEl = document.getElementById('fb-speed');
+    if (correct) {
+      speedEl.textContent = speedLabel(secs ?? 0);
+      speedEl.style.display = '';
+    } else {
+      speedEl.textContent = '';
+      speedEl.style.display = 'none';
+    }
     document.getElementById('fb-icons').innerHTML   = correct
       ? SVG_STAR + SVG_STAR + SVG_STAR
       : SVG_HEART + SVG_HEART + SVG_HEART;
