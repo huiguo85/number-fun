@@ -95,7 +95,7 @@
     .diff-btn-desc  { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.88); }
 
     /* ── HOME SCREEN ── */
-    #home { background: linear-gradient(160deg, #FFECD2 0%, #FCB69F 100%); justify-content: flex-start; padding-top: 24px; }
+    #home { background: linear-gradient(160deg, #FFECD2 0%, #FCB69F 100%); justify-content: flex-start; padding-top: 20px; gap: 10px; }
 
     .home-topbar {
       width: 100%;
@@ -626,6 +626,117 @@
       font-size: 15px; font-weight: 900; color: #444;
     }
     .guest-timer-bar.urgent { background: #EF476F; color: white; border-color: #C02050; animation: timerPulse 0.5s ease infinite alternate; }
+
+    /* ── GAMES SCREEN ── */
+    #games { background: linear-gradient(160deg, #E0EAFF 0%, #B8CCFF 100%); justify-content: flex-start; padding-top: 24px; }
+    .games-title { font-size: 38px; font-weight: 900; color: #1A3A5C; text-shadow: 2px 2px 0 rgba(255,255,255,0.6); margin-bottom: 4px; }
+    .games-grid { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+    .game-card {
+      background: white; border: 3.5px solid #222; border-radius: 24px;
+      padding: 18px 20px; cursor: pointer; box-shadow: 0 7px 0 rgba(0,0,0,0.15);
+      display: flex; align-items: center; gap: 16px; text-align: left;
+      transition: transform 0.1s, box-shadow 0.1s; font-family: inherit; width: 100%;
+    }
+    .game-card:active { transform: translateY(4px); box-shadow: 0 3px 0 rgba(0,0,0,0.15); }
+    .game-card-icon { font-size: 52px; line-height: 1; flex-shrink: 0; }
+    .game-card-name { font-size: 22px; font-weight: 900; color: #1A3A5C; }
+    .game-card-desc { font-size: 13px; font-weight: 700; color: #555; margin-top: 3px; }
+    .games-home-btn {
+      width: 100%; height: 58px; border-radius: 24px; border: 3.5px solid #222;
+      background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+      cursor: pointer; box-shadow: 0 7px 0 rgba(60,30,120,0.3);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      font-family: inherit; font-size: 20px; font-weight: 900; color: white;
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .games-home-btn:active { transform: translateY(4px); box-shadow: 0 3px 0 rgba(60,30,120,0.3); }
+
+    /* ── ROBOT CHASE GAME SCREEN ── */
+    #robot-chase {
+      background: linear-gradient(180deg, #87CEEB 0%, #B0E8FF 45%, #98E898 100%);
+      justify-content: flex-start; padding-top: 16px; gap: 10px;
+    }
+    .rc-header {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+    }
+    .rc-timer-box {
+      background: white; border: 3px solid #222; border-radius: 18px;
+      padding: 8px 14px; font-size: 22px; font-weight: 900; color: #1A3A5C;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.15); min-width: 80px; text-align: center;
+    }
+    .rc-timer-box.urgent { background: #EF476F; color: white; animation: timerPulse 0.5s ease infinite alternate; }
+    .rc-score-box {
+      background: #FFD166; border: 3px solid #222; border-radius: 18px;
+      padding: 8px 14px; font-size: 18px; font-weight: 900; color: #333;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+    }
+    .rc-headline { font-size: 20px; font-weight: 900; color: #1A3A5C; }
+    .rc-track-area {
+      width: 100%; height: 110px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 100%);
+      border: 3px solid rgba(0,0,0,0.15); border-radius: 20px;
+      position: relative; overflow: hidden;
+    }
+    .rc-sky { position: absolute; inset: 0; bottom: 32px; }
+    .rc-ground { position: absolute; bottom: 0; left: 0; right: 0; height: 34px; background: #6BBF6B; border-top: 3px solid #4A9A4A; }
+    .rc-finish-flag { position: absolute; right: 10px; bottom: 30px; font-size: 28px; line-height: 1; }
+    .rc-runner { position: absolute; bottom: 30px; font-size: 36px; line-height: 1; user-select: none; }
+    @keyframes runBounce { 0%,100%{transform:translateY(0) scaleX(1)} 50%{transform:translateY(-6px) scaleX(1.05)} }
+    .rc-runner { animation: runBounce 0.45s ease infinite; }
+    .rc-dist-bar {
+      width: 100%; height: 12px; background: rgba(255,255,255,0.45);
+      border: 2px solid rgba(0,0,0,0.15); border-radius: 8px; overflow: hidden;
+    }
+    .rc-dist-fill { height: 100%; background: #06D6A0; border-radius: 8px; transition: width 0.35s ease, background 0.35s ease; }
+    .rc-dist-label { font-size: 11px; font-weight: 900; color: rgba(0,0,0,0.5); text-align: right; width: 100%; margin-top: -4px; }
+    .rc-question-area {
+      width: 100%; background: rgba(255,255,255,0.92);
+      border: 3.5px solid #222; border-radius: 22px;
+      padding: 12px 16px; text-align: center;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.12);
+    }
+    .rc-question-text { font-size: 36px; font-weight: 900; color: #1A1A1A; letter-spacing: 2px; }
+    .rc-answers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+    .rc-ans-btn {
+      height: 62px; border-radius: 18px; border: 3.5px solid #222;
+      font-family: inherit; font-size: 26px; font-weight: 900; color: white;
+      cursor: pointer; box-shadow: 0 6px 0 rgba(0,0,0,0.18);
+      transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
+    }
+    .rc-ans-btn:nth-child(1) { background: #06D6A0; box-shadow: 0 6px 0 #04A57E; }
+    .rc-ans-btn:nth-child(2) { background: #FFD166; color: #333; box-shadow: 0 6px 0 #C89D00; }
+    .rc-ans-btn:nth-child(3) { background: #EF476F; box-shadow: 0 6px 0 #B0284A; }
+    .rc-ans-btn:nth-child(4) { background: #118AB2; box-shadow: 0 6px 0 #0A6080; }
+    .rc-ans-btn:active { transform: translateY(4px) !important; box-shadow: 0 2px 0 rgba(0,0,0,0.18) !important; }
+    .rc-ans-btn.correct-flash { background: #06D6A0 !important; transform: scale(1.06) !important; }
+    .rc-ans-btn.wrong-flash   { background: #EF476F !important; transform: scale(0.95) !important; }
+    .rc-ans-btn:disabled { opacity: 0.5; cursor: default; }
+    /* Win / Lose overlays */
+    .rc-overlay {
+      position: absolute; inset: 0; z-index: 50; border-radius: 40px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    }
+    .rc-win-overlay  { background: rgba(6,214,160,0.93); }
+    .rc-lose-overlay { background: rgba(239,71,111,0.93); }
+    .rc-overlay-emoji  { font-size: 64px; line-height: 1; }
+    .rc-overlay-title  { font-size: 44px; font-weight: 900; color: white; text-shadow: 3px 3px 0 rgba(0,0,0,0.15); }
+    .rc-overlay-sub    { font-size: 17px; font-weight: 800; color: rgba(255,255,255,0.92); text-align: center; padding: 0 16px; }
+    .rc-overlay-btns   { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; width: 220px; }
+    .rc-overlay-btn {
+      padding: 13px 28px; border-radius: 20px; border: 3.5px solid #222;
+      font-family: inherit; font-size: 18px; font-weight: 900; cursor: pointer;
+      box-shadow: 0 6px 0 rgba(0,0,0,0.18); background: white; color: #333;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .rc-overlay-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.18); }
+    /* Speed shoes winner animation */
+    @keyframes speedZoom {
+      0%   { transform: translateX(0)   scale(1); opacity: 1; }
+      60%  { transform: translateX(80px) scale(1.5); opacity: 1; }
+      100% { transform: translateX(220px) scale(0.3); opacity: 0; }
+    }
+    .rc-speed-winner { animation: speedZoom 1.0s cubic-bezier(0.2,0.8,0.8,1) forwards; }
   </style>
 </head>
 <body>
@@ -778,6 +889,10 @@
       </button>
     </div>
 
+    <button class="games-home-btn" onclick="showScreen('games')">
+      🎮 <span data-i18n="games">Games</span>
+    </button>
+
     <button class="goal-btn" id="goal-btn" onclick="openGoalPopup()">
       <div class="goal-btn-left">
         <span>🎯</span>
@@ -793,6 +908,92 @@
 
     <button class="prize-btn hidden" id="prize-btn" onclick="openGoalPopup()">
       <span data-i18n="collectPrize">🎁 Collect Prize!</span>
+    </button>
+  </div>
+
+  <!-- GAMES SCREEN -->
+  <div class="screen hidden" id="games">
+    <div style="width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <button class="back-pill" onclick="showScreen('home')">
+        <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 3 L6 10 L13 17" fill="none" stroke="#444" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span data-i18n="back">Back</span>
+      </button>
+    </div>
+    <div class="games-title">🎮 <span data-i18n="games">Games</span></div>
+    <div class="games-grid">
+      <button class="game-card" onclick="startRobotChase()">
+        <div class="game-card-icon">🤖</div>
+        <div class="game-card-info">
+          <div class="game-card-name">Robot Chase!</div>
+          <div class="game-card-desc">Answer 3 questions before the robot catches you! ⏱ 50 seconds</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ROBOT CHASE SCREEN -->
+  <div class="screen hidden" id="robot-chase">
+    <!-- Win overlay -->
+    <div class="rc-overlay rc-win-overlay hidden" id="rc-win">
+      <div class="rc-overlay-emoji" id="rc-win-runner">🏃⚡</div>
+      <div class="rc-overlay-title">You Win! 🏆</div>
+      <div class="rc-overlay-sub">Speed shoes activated! You zoomed past the robot! 👟⚡</div>
+      <div class="rc-overlay-btns">
+        <button class="rc-overlay-btn" onclick="startRobotChase()">Play Again! 🔄</button>
+        <button class="rc-overlay-btn" onclick="exitRobotChase(); showScreen('games')">Back to Games</button>
+      </div>
+    </div>
+    <!-- Lose overlay -->
+    <div class="rc-overlay rc-lose-overlay hidden" id="rc-lose">
+      <div class="rc-overlay-emoji">🤖💨</div>
+      <div class="rc-overlay-title">Caught! 😱</div>
+      <div class="rc-overlay-sub">The robot was faster this time... Try again!</div>
+      <div class="rc-overlay-btns">
+        <button class="rc-overlay-btn" onclick="startRobotChase()">Try Again! 🔄</button>
+        <button class="rc-overlay-btn" onclick="exitRobotChase(); showScreen('games')">Back to Games</button>
+      </div>
+    </div>
+
+    <div class="rc-header">
+      <div class="rc-timer-box" id="rc-timer">⏱ 50</div>
+      <div class="rc-headline">Robot Chase!</div>
+      <div class="rc-score-box">✅ <span id="rc-score">0</span>/3</div>
+    </div>
+
+    <!-- Race track -->
+    <div class="rc-track-area">
+      <div class="rc-ground"></div>
+      <div class="rc-finish-flag">🏁</div>
+      <div class="rc-runner" id="rc-player-el" style="left:15%">🧒</div>
+      <div class="rc-runner" id="rc-robot-el"  style="left:2%">🤖</div>
+    </div>
+
+    <!-- Gap indicator bar -->
+    <div class="rc-dist-bar">
+      <div class="rc-dist-fill" id="rc-dist-fill" style="width:80%"></div>
+    </div>
+    <div class="rc-dist-label" id="rc-dist-label">Safe distance</div>
+
+    <!-- Question -->
+    <div class="rc-question-area">
+      <div class="rc-question-text" id="rc-question">? + ? = ?</div>
+    </div>
+
+    <!-- Answers -->
+    <div class="rc-answers" id="rc-answers">
+      <button class="rc-ans-btn" onclick="rcPick(0)">?</button>
+      <button class="rc-ans-btn" onclick="rcPick(1)">?</button>
+      <button class="rc-ans-btn" onclick="rcPick(2)">?</button>
+      <button class="rc-ans-btn" onclick="rcPick(3)">?</button>
+    </div>
+
+    <button class="back-pill" style="align-self:flex-start" onclick="exitRobotChase(); showScreen('games')">
+      <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 3 L6 10 L13 17" fill="none" stroke="#444" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Quit</span>
     </button>
   </div>
 
@@ -910,7 +1111,7 @@
       diffTitle:'How hard\ndo you want?', easy:'Easy', easyDesc:'Answers up to 9',
       medium:'Medium', mediumDesc:'Answers up to 24', hard:'Hard', hardDesc:'Answers up to 100',
       appTitle:'Number Fun!', changeDiff:'✦ Change difficulty',
-      subtitle:'What do you want to do?', add:'Add', subtract:'Take Away', multiply:'Multiply',
+      subtitle:'What do you want to do?', add:'Add', subtract:'Take Away', multiply:'Multiply', games:'Games',
       shop:'Shop', stars:'stars', avatarShop:'Avatar Shop',
       back:'Back', buddiesTab:'🐾 Buddies', gearTab:'🎩 Gear',
       weeklyGoal:'Weekly Goal', tapGoal:'Tap to choose a goal!',
@@ -958,7 +1159,7 @@
       diffTitle:'你想要多难？', easy:'简单', easyDesc:'答案不超过 9',
       medium:'中等', mediumDesc:'答案不超过 24', hard:'困难', hardDesc:'答案不超过 100',
       appTitle:'数字乐园！', changeDiff:'✦ 更换难度',
-      subtitle:'你想做什么？', add:'加法', subtract:'减法', multiply:'乘法',
+      subtitle:'你想做什么？', add:'加法', subtract:'减法', multiply:'乘法', games:'游戏',
       shop:'商店', stars:'星星', avatarShop:'头像商店',
       back:'返回', buddiesTab:'🐾 伙伴', gearTab:'🎩 装备',
       weeklyGoal:'每周目标', tapGoal:'点击选择目标！',
@@ -1006,7 +1207,7 @@
       diffTitle:'¿Qué tan difícil\nquieres?', easy:'Fácil', easyDesc:'Respuestas hasta 9',
       medium:'Medio', mediumDesc:'Respuestas hasta 24', hard:'Difícil', hardDesc:'Respuestas hasta 100',
       appTitle:'¡Números Divertidos!', changeDiff:'✦ Cambiar dificultad',
-      subtitle:'¿Qué quieres hacer?', add:'Sumar', subtract:'Restar', multiply:'Multiplicar',
+      subtitle:'¿Qué quieres hacer?', add:'Sumar', subtract:'Restar', multiply:'Multiplicar', games:'Juegos',
       shop:'Tienda', stars:'estrellas', avatarShop:'Tienda de Avatares',
       back:'Atrás', buddiesTab:'🐾 Amigos', gearTab:'🎩 Accesorios',
       weeklyGoal:'Meta Semanal', tapGoal:'¡Toca para elegir una meta!',
@@ -1054,7 +1255,7 @@
       diffTitle:'Quão difícil\nvocê quer?', easy:'Fácil', easyDesc:'Respostas até 9',
       medium:'Médio', mediumDesc:'Respostas até 24', hard:'Difícil', hardDesc:'Respostas até 100',
       appTitle:'Diversão com Números!', changeDiff:'✦ Mudar dificuldade',
-      subtitle:'O que você quer fazer?', add:'Somar', subtract:'Subtrair', multiply:'Multiplicar',
+      subtitle:'O que você quer fazer?', add:'Somar', subtract:'Subtrair', multiply:'Multiplicar', games:'Jogos',
       shop:'Loja', stars:'estrelas', avatarShop:'Loja de Avatares',
       back:'Voltar', buddiesTab:'🐾 Amigos', gearTab:'🎩 Acessórios',
       weeklyGoal:'Meta Semanal', tapGoal:'Toque para escolher uma meta!',
@@ -2371,7 +2572,7 @@
   function goBack() { showScreen('home'); }
 
   function showScreen(id) {
-    ['difficulty','home','shop','problem','feedback','signin','create-account','change-password'].forEach(s => {
+    ['difficulty','home','shop','problem','feedback','signin','create-account','change-password','games','robot-chase'].forEach(s => {
       document.getElementById(s).classList.toggle('hidden', s !== id);
     });
     // Match body background to the active screen so the colour fills the whole viewport
@@ -2405,6 +2606,179 @@
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
     return arr;
+  }
+
+  /* ─────────────────────────────────────────────────────
+     ROBOT CHASE MINI-GAME
+  ───────────────────────────────────────────────────── */
+  let rcInterval    = null;
+  let rcTimeLeft    = 50;
+  let rcScore       = 0;
+  let rcPlayerPos   = 22;   // % along track (0-100)
+  let rcRobotPos    = 2;    // starts behind player
+  let rcCorrectAns  = 0;
+  let rcChoices     = [];
+  let rcCanAnswer   = true;
+  const RC_ROBOT_SPEED    = 1.8;  // % per second — robot
+  const RC_PLAYER_SPEED   = 0.7;  // % per second — player base drift
+  const RC_CORRECT_BOOST  = 18;   // % jump on correct answer
+
+  function startRobotChase() {
+    rcScore     = 0;
+    rcPlayerPos = 22;
+    rcRobotPos  = 2;
+    rcTimeLeft  = 50;
+    rcCanAnswer = true;
+
+    document.getElementById('rc-score').textContent = '0';
+    const timerEl = document.getElementById('rc-timer');
+    timerEl.textContent = '⏱ 50';
+    timerEl.classList.remove('urgent');
+    document.getElementById('rc-win').classList.add('hidden');
+    document.getElementById('rc-lose').classList.add('hidden');
+
+    // Reset runner animation class
+    const winRunner = document.getElementById('rc-win-runner');
+    winRunner.textContent = '🏃⚡';
+    winRunner.classList.remove('rc-speed-winner');
+
+    rcUpdateTrack();
+    rcNewQuestion();
+    showScreen('robot-chase');
+
+    if (rcInterval) clearInterval(rcInterval);
+    rcInterval = setInterval(rcTick, 1000);
+  }
+
+  function rcTick() {
+    if (rcTimeLeft <= 0) { rcGameOver(false); return; }
+    rcTimeLeft--;
+
+    // Move both runners each second
+    rcRobotPos  = Math.min(96, rcRobotPos  + RC_ROBOT_SPEED);
+    rcPlayerPos = Math.min(96, rcPlayerPos + RC_PLAYER_SPEED);
+
+    const timerEl = document.getElementById('rc-timer');
+    timerEl.textContent = '⏱ ' + rcTimeLeft;
+    if (rcTimeLeft <= 10) timerEl.classList.add('urgent');
+
+    rcUpdateTrack();
+
+    // Robot catches player?
+    if (rcRobotPos >= rcPlayerPos) { rcGameOver(false); }
+  }
+
+  function rcUpdateTrack() {
+    const playerEl = document.getElementById('rc-player-el');
+    const robotEl  = document.getElementById('rc-robot-el');
+    if (playerEl) playerEl.style.left = Math.min(rcPlayerPos, 80) + '%';
+    if (robotEl)  robotEl.style.left  = Math.min(rcRobotPos,  80) + '%';
+
+    // Distance bar: bigger gap = more green, closer = red
+    const gap     = Math.max(0, rcPlayerPos - rcRobotPos);
+    const gapPct  = Math.min(100, (gap / 30) * 100);
+    const fillEl  = document.getElementById('rc-dist-fill');
+    const labelEl = document.getElementById('rc-dist-label');
+    if (fillEl) {
+      fillEl.style.width = gapPct + '%';
+      fillEl.style.background = gapPct < 20 ? '#EF476F' : gapPct < 50 ? '#FFD166' : '#06D6A0';
+    }
+    if (labelEl) {
+      labelEl.textContent = gapPct < 20 ? '⚠️ Almost caught!' : gapPct < 50 ? 'Getting close...' : '✅ Safe distance';
+    }
+  }
+
+  function rcNewQuestion() {
+    // Simple addition/subtraction — use 1-10 range for accessibility
+    const useAdd = Math.random() > 0.4;
+    let a, b, answer;
+    if (useAdd) {
+      a = randInt(1, 9); b = randInt(1, 10 - a);
+      answer = a + b;
+    } else {
+      a = randInt(2, 10); b = randInt(1, a);
+      answer = a - b;
+    }
+    rcCorrectAns = answer;
+    const opStr = useAdd ? '+' : '−';
+    document.getElementById('rc-question').textContent = a + ' ' + opStr + ' ' + b + ' = ?';
+
+    // 4 choices: 1 correct + 3 unique wrong
+    const wrongs = new Set();
+    while (wrongs.size < 3) {
+      const w = Math.max(0, answer + randInt(-4, 4));
+      if (w !== answer) wrongs.add(w);
+    }
+    rcChoices = shuffle([answer, ...wrongs]);
+
+    const btns = document.querySelectorAll('.rc-ans-btn');
+    btns.forEach((btn, i) => {
+      btn.textContent = rcChoices[i];
+      btn.disabled    = false;
+      btn.classList.remove('correct-flash', 'wrong-flash');
+      btn.style.opacity = '1';
+    });
+    rcCanAnswer = true;
+  }
+
+  function rcPick(idx) {
+    if (!rcCanAnswer) return;
+    const chosen = rcChoices[idx];
+    const btns   = document.querySelectorAll('.rc-ans-btn');
+
+    if (chosen === rcCorrectAns) {
+      // ✅ Correct — boost player forward
+      rcCanAnswer = false;
+      btns[idx].classList.add('correct-flash');
+      rcPlayerPos = Math.min(96, rcPlayerPos + RC_CORRECT_BOOST);
+      rcUpdateTrack();
+      rcScore++;
+      document.getElementById('rc-score').textContent = rcScore;
+
+      if (rcScore >= 3) {
+        // WIN!
+        setTimeout(() => rcGameOver(true), 500);
+      } else {
+        setTimeout(() => {
+          btns[idx].classList.remove('correct-flash');
+          rcNewQuestion();
+        }, 650);
+      }
+    } else {
+      // ❌ Wrong — flash red, no boost
+      btns[idx].classList.add('wrong-flash');
+      setTimeout(() => btns[idx].classList.remove('wrong-flash'), 500);
+    }
+  }
+
+  function rcGameOver(won) {
+    if (rcInterval) { clearInterval(rcInterval); rcInterval = null; }
+    rcCanAnswer = false;
+
+    if (won) {
+      // Speed shoes animation: player zooms off screen
+      const winRunner = document.getElementById('rc-win-runner');
+      winRunner.textContent = '🏃👟⚡';
+      void winRunner.offsetWidth; // force reflow
+      winRunner.classList.add('rc-speed-winner');
+
+      // Reward 5 stars
+      if (currentUser) {
+        totalStars += 5;
+        saveUserData();
+        updateShopBtn();
+      }
+      setTimeout(() => document.getElementById('rc-win').classList.remove('hidden'), 900);
+    } else {
+      document.getElementById('rc-lose').classList.remove('hidden');
+    }
+  }
+
+  function exitRobotChase() {
+    if (rcInterval) { clearInterval(rcInterval); rcInterval = null; }
+    rcCanAnswer = false;
+    document.getElementById('rc-win').classList.add('hidden');
+    document.getElementById('rc-lose').classList.add('hidden');
   }
 
   init();
