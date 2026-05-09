@@ -1132,7 +1132,7 @@
   <!-- SHOP SCREEN -->
   <div class="screen hidden" id="shop">
     <div class="shop-header">
-      <button class="back-pill" onclick="stopShopTimer(); showScreen('home')">
+      <button class="back-pill" onclick="stopShopTimer(); onShopExit(); showScreen('home')">
         <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
           <path d="M13 3 L6 10 L13 17" fill="none" stroke="#444" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -1838,7 +1838,8 @@
     medium: { maxAnswer: 24,  distractorStep: 2 },
     hard:   { maxAnswer: 100, distractorStep: 8 },
   };
-  const SHOP_COST = 10;
+  const SHOP_COST = 10;           // stars needed for first visit
+  let shopStarThreshold = SHOP_COST; // stars needed for the NEXT visit (rises by 10 each exit)
 
   let difficulty     = 'easy';
   let mode           = 'add';
@@ -1892,6 +1893,7 @@
       mainCorrect,
       mainWrong,
       totalPlaySeconds,
+      shopStarThreshold,
     }));
   }
 
@@ -1906,10 +1908,11 @@
     goalProgress     = parseInt(data.goalProgress  ?? 0);
     goalWeekKey      = data.goalWeekKey            ?? '';
     goalPrizeReady   = data.goalPrizeReady         === true;
-    mainCorrect      = parseInt(data.mainCorrect   ?? 0);
-    mainWrong        = parseInt(data.mainWrong     ?? 0);
-    totalPlaySeconds = parseInt(data.totalPlaySeconds ?? 0);
-    lastTimeSave     = Date.now();
+    mainCorrect        = parseInt(data.mainCorrect       ?? 0);
+    mainWrong          = parseInt(data.mainWrong         ?? 0);
+    totalPlaySeconds   = parseInt(data.totalPlaySeconds  ?? 0);
+    shopStarThreshold  = parseInt(data.shopStarThreshold ?? SHOP_COST);
+    lastTimeSave       = Date.now();
     checkWeekReset();
   }
 
@@ -2148,7 +2151,16 @@
   }
 
   function updateShopBtn() {
-    document.getElementById('shop-star-count').textContent = '⭐ ' + totalStars;
+    const badge = document.getElementById('shop-star-count');
+    const btn   = document.getElementById('shop-btn');
+    const needed = shopStarThreshold - totalStars;
+    if (needed > 0) {
+      badge.textContent = '🔒 Need ' + needed + ' more';
+      if (btn) btn.classList.add('locked');
+    } else {
+      badge.textContent = '⭐ ' + totalStars;
+      if (btn) btn.classList.remove('locked');
+    }
     document.getElementById('shop-total-stars').textContent = totalStars;
   }
 
@@ -2174,6 +2186,7 @@
       if (secondsLeft <= 0) {
         clearInterval(shopTimerInterval);
         shopTimerInterval = null;
+        onShopExit();
         showScreen('home');
       }
     }, 1000);
@@ -2185,23 +2198,31 @@
   }
 
   function tryOpenShop() {
-    if (totalStars < SHOP_COST) {
+    const needed = shopStarThreshold - totalStars;
+    if (needed > 0) {
+      // Jiggle and flash the badge
       const btn = document.getElementById('shop-btn');
       btn.classList.remove('jiggling');
-      void btn.offsetWidth; // reflow to restart animation
+      void btn.offsetWidth;
       btn.classList.add('jiggling');
       btn.addEventListener('animationend', () => btn.classList.remove('jiggling'), { once: true });
 
-      // Briefly show "need X more" on the badge
       const badge = document.getElementById('shop-star-count');
       const orig  = badge.textContent;
-      badge.textContent = t('needMore', {n: SHOP_COST - totalStars});
-      setTimeout(() => badge.textContent = orig, 1400);
+      badge.textContent = '🔒 ' + needed + ' more!';
+      setTimeout(() => { badge.textContent = orig; }, 1400);
       return;
     }
     renderShop();
     showScreen('shop');
     startShopTimer();
+  }
+
+  function onShopExit() {
+    // Set next visit threshold: must earn 10 MORE stars from now
+    shopStarThreshold = totalStars + SHOP_COST;
+    saveUserData();
+    updateShopBtn();
   }
 
   function renderShop() {
