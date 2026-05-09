@@ -756,6 +756,38 @@
       100% { transform: translateX(220px) scale(0.3); opacity: 0; }
     }
     .rc-speed-winner { animation: speedZoom 1.0s cubic-bezier(0.2,0.8,0.8,1) forwards; }
+
+    /* ── PARENT VIEW SCREEN ── */
+    #parent { background: linear-gradient(160deg, #2D1B69 0%, #11998E 100%); justify-content: flex-start; padding-top: 20px; gap: 14px; }
+    .parent-topbar { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+    .parent-title { font-size: 28px; font-weight: 900; color: white; text-shadow: 2px 2px 0 rgba(0,0,0,0.25); }
+    .parent-subtitle { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.75); align-self: flex-start; }
+    .parent-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+    .stat-card {
+      background: rgba(255,255,255,0.12); border: 2.5px solid rgba(255,255,255,0.25);
+      border-radius: 20px; padding: 16px 14px; display: flex; flex-direction: column;
+      align-items: center; gap: 4px;
+    }
+    .stat-card-wide { grid-column: span 2; }
+    .stat-icon { font-size: 28px; line-height: 1; }
+    .stat-icon svg { width: 32px; height: 32px; }
+    .stat-value { font-size: 28px; font-weight: 900; color: white; line-height: 1.1; text-align: center; }
+    .stat-label { font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.7); text-align: center; }
+    .parent-section-title { font-size: 16px; font-weight: 900; color: rgba(255,255,255,0.9); align-self: flex-start; margin-top: 4px; }
+    /* Parent button on difficulty screen */
+    .parent-entry-btn {
+      background: rgba(0,0,0,0.18); border: 2.5px solid rgba(255,255,255,0.35);
+      border-radius: 20px; padding: 8px 18px;
+      font-family: inherit; font-size: 14px; font-weight: 900; color: rgba(255,255,255,0.85);
+      cursor: pointer; display: flex; align-items: center; gap: 7px;
+      transition: background 0.15s;
+    }
+    .parent-entry-btn:active { background: rgba(0,0,0,0.35); }
+    .parent-entry-btn svg { width: 18px; height: 18px; }
+    /* Unlock badge on game card */
+    .rc-plays-badge.locked { background: #FFF3DC; border-color: #FF9900; color: #884400; }
+    .rc-unlock-bar { width: 100%; height: 8px; background: #EEE; border-radius: 5px; overflow: hidden; margin-top: 4px; }
+    .rc-unlock-fill { height: 100%; background: linear-gradient(90deg,#FFD166,#FF9900); border-radius: 5px; transition: width 0.4s ease; }
   </style>
 </head>
 <body>
@@ -815,6 +847,73 @@
       🔑 Sign In
     </button>
     <button class="change-pass-link hidden" id="change-pass-btn" onclick="showScreen('change-password')" data-i18n="changePass">Change Password</button>
+    <button class="parent-entry-btn" onclick="showParentScreen()">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <circle cx="9" cy="7" r="3.5"/><path d="M2 20 Q2 14 9 14 Q16 14 16 20"/>
+        <circle cx="18" cy="9" r="2.5"/><path d="M16 20 Q16 15.5 18 15.5 Q22 15.5 22 20"/>
+      </svg>
+      Parent View
+    </button>
+  </div>
+
+  <!-- PARENT VIEW SCREEN -->
+  <div class="screen hidden" id="parent">
+    <div class="parent-topbar">
+      <button class="back-pill" onclick="showScreen('difficulty')">
+        <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 3 L6 10 L13 17" fill="none" stroke="#444" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Back</span>
+      </button>
+      <div class="parent-title">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" width="26" height="26" style="vertical-align:middle;margin-right:6px">
+          <circle cx="9" cy="7" r="3.5"/><path d="M2 20 Q2 14 9 14 Q16 14 16 20"/>
+          <circle cx="18" cy="9" r="2.5"/><path d="M16 20 Q16 15.5 18 15.5 Q22 15.5 22 20"/>
+        </svg>
+        Parent View
+      </div>
+    </div>
+    <div class="parent-subtitle" id="parent-user-label">Viewing: Guest</div>
+
+    <div class="parent-section-title">⏱ Time Played</div>
+    <div class="parent-stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-session">0 min</div>
+        <div class="stat-label">This session</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-total-time">0 min</div>
+        <div class="stat-label">All time</div>
+      </div>
+    </div>
+
+    <div class="parent-section-title">📊 Questions</div>
+    <div class="parent-stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-correct">0</div>
+        <div class="stat-label">Correct</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-wrong">0</div>
+        <div class="stat-label">Wrong</div>
+      </div>
+      <div class="stat-card stat-card-wide">
+        <div class="stat-value" id="stat-accuracy">—</div>
+        <div class="stat-label">Accuracy</div>
+      </div>
+    </div>
+
+    <div class="parent-section-title">🎮 Games &amp; Stars</div>
+    <div class="parent-stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-stars">0</div>
+        <div class="stat-label">Stars earned</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-rc-games">0</div>
+        <div class="stat-label">Robot Chase plays</div>
+      </div>
+    </div>
   </div>
 
   <!-- SIGN IN SCREEN -->
@@ -948,6 +1047,7 @@
           <div class="game-card-name">Robot Chase!</div>
           <div class="game-card-desc">Answer 3 questions before the robot catches you! 50 seconds</div>
           <div class="rc-plays-badge" id="rc-plays-badge"></div>
+          <div class="rc-unlock-bar hidden" id="rc-unlock-bar"><div class="rc-unlock-fill" id="rc-unlock-fill" style="width:0%"></div></div>
         </div>
       </button>
     </div>
@@ -1743,7 +1843,12 @@
   let difficulty     = 'easy';
   let mode           = 'add';
   let score          = 0;
-  let totalStars       = 0;
+  let totalStars     = 0;
+  let mainCorrect    = 0;   // correct answers in main game (unlocks Robot Chase at 30)
+  let mainWrong      = 0;   // wrong answers in main game
+  let totalPlaySeconds = 0; // cumulative play time in seconds
+  const sessionStartTime = Date.now(); // for "this session" display
+  let lastTimeSave   = Date.now();     // for incremental time tracking
   let currentAvatarIdx = 0;
   let currentAccIdx    = -1;
   let ownedAccs        = new Set();
@@ -1784,6 +1889,9 @@
       goalProgress,
       goalWeekKey,
       goalPrizeReady,
+      mainCorrect,
+      mainWrong,
+      totalPlaySeconds,
     }));
   }
 
@@ -1798,6 +1906,10 @@
     goalProgress     = parseInt(data.goalProgress  ?? 0);
     goalWeekKey      = data.goalWeekKey            ?? '';
     goalPrizeReady   = data.goalPrizeReady         === true;
+    mainCorrect      = parseInt(data.mainCorrect   ?? 0);
+    mainWrong        = parseInt(data.mainWrong     ?? 0);
+    totalPlaySeconds = parseInt(data.totalPlaySeconds ?? 0);
+    lastTimeSave     = Date.now();
     checkWeekReset();
   }
 
@@ -1808,6 +1920,15 @@
     updateGoalUI();
     updateAuthUI();
   }
+
+  // ── Session time tracking ──
+  function flushPlayTime() {
+    const now = Date.now();
+    totalPlaySeconds += Math.round((now - lastTimeSave) / 1000);
+    lastTimeSave = now;
+  }
+  setInterval(() => { flushPlayTime(); saveUserData(); }, 30000);
+  window.addEventListener('beforeunload', () => { flushPlayTime(); saveUserData(); });
 
   // Guest timer state (5 minutes = 300 seconds)
   let guestTimerInterval = null;
@@ -2583,6 +2704,7 @@
       }
       score++;
       totalStars++;
+      mainCorrect++;
       saveUserData();
       document.getElementById('score').textContent = score;
       updateShopBtn();
@@ -2604,6 +2726,7 @@
           box.className = 'answer-box filled';
         }, 500);
       }
+      mainWrong++;
       recordWrong();
       setTimeout(() => showFeedback(false, elapsedSecs), 800);
     }
@@ -2644,8 +2767,36 @@
 
   function goBack() { showScreen('home'); }
 
+  /* ── PARENT VIEW ── */
+  function fmtTime(secs) {
+    if (secs < 60)   return secs + ' sec';
+    if (secs < 3600) return Math.round(secs / 60) + ' min';
+    return (secs / 3600).toFixed(1) + ' hr';
+  }
+  function showParentScreen() {
+    flushPlayTime();
+    const sessionSecs = Math.round((Date.now() - sessionStartTime) / 1000);
+    const total       = mainCorrect + mainWrong;
+    const accuracy    = total > 0 ? Math.round((mainCorrect / total) * 100) + '%' : '—';
+    const rcPlays     = (() => {
+      const today = new Date().toISOString().slice(0, 10);
+      const d = JSON.parse(localStorage.getItem('rc_plays') || '{"date":"","count":0}');
+      return d.date === today ? d.count : 0;
+    })();
+
+    document.getElementById('stat-session').textContent    = fmtTime(sessionSecs);
+    document.getElementById('stat-total-time').textContent = fmtTime(totalPlaySeconds);
+    document.getElementById('stat-correct').textContent    = mainCorrect;
+    document.getElementById('stat-wrong').textContent      = mainWrong;
+    document.getElementById('stat-accuracy').textContent   = accuracy;
+    document.getElementById('stat-stars').textContent      = totalStars;
+    document.getElementById('stat-rc-games').textContent   = rcPlays;
+    document.getElementById('parent-user-label').textContent = 'Viewing: ' + (currentUser || 'Guest');
+    showScreen('parent');
+  }
+
   function showScreen(id) {
-    ['difficulty','home','shop','problem','feedback','signin','create-account','change-password','games','robot-chase'].forEach(s => {
+    ['difficulty','home','shop','problem','feedback','signin','create-account','change-password','games','robot-chase','parent'].forEach(s => {
       document.getElementById(s).classList.toggle('hidden', s !== id);
     });
     // Match body background to the active screen so the colour fills the whole viewport
@@ -2684,17 +2835,20 @@
   /* ─────────────────────────────────────────────────────
      ROBOT CHASE MINI-GAME
   ───────────────────────────────────────────────────── */
-  let rcInterval    = null;
-  let rcTimeLeft    = 50;
+  // RC state
+  let rcRafId       = null;     // requestAnimationFrame handle
+  let rcLastTs      = null;     // last rAF timestamp
+  let rcTimeLeftMs  = 50000;    // ms remaining (50s)
   let rcScore       = 0;
-  let rcPlayerPos   = 22;   // % along track (0-100)
-  let rcRobotPos    = 2;    // starts behind player
+  let rcPlayerPos   = 22;       // % along track (0-100)
+  let rcRobotPos    = 2;        // starts behind player
   let rcCorrectAns  = 0;
   let rcChoices     = [];
   let rcCanAnswer   = true;
-  const RC_ROBOT_SPEED    = 1.8;  // % per second — robot
-  const RC_PLAYER_SPEED   = 0.7;  // % per second — player base drift
-  const RC_CORRECT_BOOST  = 18;   // % jump on correct answer
+  const RC_ROBOT_SPEED    = 1.8;   // % per second — robot
+  const RC_PLAYER_SPEED   = 0.7;   // % per second — player base drift
+  const RC_CORRECT_BOOST  = 18;    // % jump on correct answer
+  const RC_UNLOCK_NEEDED  = 30;    // correct answers in main game to unlock
 
   /* ── RC: plays-per-day helpers ── */
   function rcGetPlaysToday() {
@@ -2710,16 +2864,40 @@
     localStorage.setItem('rc_plays', JSON.stringify(data));
   }
   function rcUpdatePlaysBadge() {
-    const badge = document.getElementById('rc-plays-badge');
-    const icon  = document.getElementById('rc-card-icon');
+    const badge   = document.getElementById('rc-plays-badge');
+    const icon    = document.getElementById('rc-card-icon');
+    const bar     = document.getElementById('rc-unlock-bar');
+    const fill    = document.getElementById('rc-unlock-fill');
+    const card    = document.getElementById('rc-game-card');
     if (!badge) return;
+    if (icon) icon.innerHTML = SVG_ROBOT;
+
+    if (mainCorrect < RC_UNLOCK_NEEDED) {
+      // ── LOCKED: show progress toward unlock ──
+      const remaining = RC_UNLOCK_NEEDED - mainCorrect;
+      badge.textContent = '🔒 Answer ' + remaining + ' more to unlock!';
+      badge.className = 'rc-plays-badge locked';
+      if (bar)  bar.classList.remove('hidden');
+      if (fill) fill.style.width = Math.round((mainCorrect / RC_UNLOCK_NEEDED) * 100) + '%';
+      if (card) card.disabled = true;
+      return;
+    }
+
+    // ── UNLOCKED ──
+    if (card) card.disabled = false;
+    if (bar)  bar.classList.add('hidden');
     const left = Math.max(0, 3 - rcGetPlaysToday());
     badge.textContent = left > 0 ? '▶ ' + left + ' play' + (left === 1 ? '' : 's') + ' left today' : 'Come back tomorrow!';
-    badge.classList.toggle('empty', left === 0);
-    if (icon) icon.innerHTML = SVG_ROBOT;
+    badge.className = 'rc-plays-badge' + (left === 0 ? ' empty' : '');
   }
 
   function startRobotChase() {
+    // Check unlock requirement
+    if (mainCorrect < RC_UNLOCK_NEEDED) {
+      rcUpdatePlaysBadge();
+      showScreen('games');
+      return;
+    }
     // Check daily limit
     if (rcGetPlaysToday() >= 3) {
       rcUpdatePlaysBadge();
@@ -2727,11 +2905,12 @@
       return;
     }
 
-    rcScore     = 0;
-    rcPlayerPos = 22;
-    rcRobotPos  = 2;
-    rcTimeLeft  = 50;
-    rcCanAnswer = true;
+    rcScore      = 0;
+    rcPlayerPos  = 22;
+    rcRobotPos   = 2;
+    rcTimeLeftMs = 50000;
+    rcCanAnswer  = true;
+    rcLastTs     = null;
 
     document.getElementById('rc-score').textContent = '0';
     const timerEl = document.getElementById('rc-timer');
@@ -2747,41 +2926,47 @@
     document.getElementById('rc-robot-el').innerHTML  = SVG_ROBOT;
     document.getElementById('rc-flag-el').innerHTML   = SVG_FLAG;
 
-    // Populate win overlay runner (avatar + bolt)
+    // Win overlay
     const winRunner = document.getElementById('rc-win-runner');
     winRunner.innerHTML = avatarSvg + SVG_BOLT;
     winRunner.classList.remove('rc-speed-winner');
-
-    // Populate lose overlay robot
     document.getElementById('rc-lose-robot').innerHTML = SVG_ROBOT;
-
-    // Win title with trophy
-    document.getElementById('rc-win-title').innerHTML = 'You Win! ' + SVG_TROPHY;
+    document.getElementById('rc-win-title').innerHTML  = 'You Win! ' + SVG_TROPHY;
 
     rcUpdateTrack();
     rcNewQuestion();
     showScreen('robot-chase');
 
-    if (rcInterval) clearInterval(rcInterval);
-    rcInterval = setInterval(rcTick, 1000);
+    if (rcRafId) cancelAnimationFrame(rcRafId);
+    rcRafId = requestAnimationFrame(rcFrame);
   }
 
-  function rcTick() {
-    if (rcTimeLeft <= 0) { rcGameOver(false); return; }
-    rcTimeLeft--;
+  /* Smooth rAF game loop — replaces setInterval tick */
+  function rcFrame(timestamp) {
+    if (rcLastTs === null) rcLastTs = timestamp;
+    const dt = Math.min(timestamp - rcLastTs, 80); // cap at 80ms to avoid huge jumps on tab resume
+    rcLastTs = timestamp;
 
-    // Move both runners each second
-    rcRobotPos  = Math.min(96, rcRobotPos  + RC_ROBOT_SPEED);
-    rcPlayerPos = Math.min(96, rcPlayerPos + RC_PLAYER_SPEED);
+    rcTimeLeftMs -= dt;
+    if (rcTimeLeftMs <= 0) { rcGameOver(false); return; }
 
-    const timerEl = document.getElementById('rc-timer');
-    timerEl.textContent = rcTimeLeft;
-    if (rcTimeLeft <= 10) timerEl.classList.add('urgent');
+    // Move runners proportionally to elapsed time
+    rcRobotPos  = Math.min(96, rcRobotPos  + RC_ROBOT_SPEED  * dt / 1000);
+    rcPlayerPos = Math.min(96, rcPlayerPos + RC_PLAYER_SPEED * dt / 1000);
+
+    // Update timer display only when the displayed second changes
+    const secsLeft = Math.ceil(rcTimeLeftMs / 1000);
+    const timerEl  = document.getElementById('rc-timer');
+    if (timerEl && timerEl.textContent !== String(secsLeft)) {
+      timerEl.textContent = secsLeft;
+      if (secsLeft <= 10) timerEl.classList.add('urgent');
+    }
 
     rcUpdateTrack();
 
-    // Robot catches player?
-    if (rcRobotPos >= rcPlayerPos) { rcGameOver(false); }
+    if (rcRobotPos >= rcPlayerPos) { rcGameOver(false); return; }
+
+    rcRafId = requestAnimationFrame(rcFrame);
   }
 
   function rcUpdateTrack() {
@@ -2868,7 +3053,7 @@
   }
 
   function rcGameOver(won) {
-    if (rcInterval) { clearInterval(rcInterval); rcInterval = null; }
+    if (rcRafId) { cancelAnimationFrame(rcRafId); rcRafId = null; }
     rcCanAnswer = false;
     rcAddPlay();
     rcUpdatePlaysBadge();
@@ -2892,7 +3077,7 @@
   }
 
   function exitRobotChase() {
-    if (rcInterval) { clearInterval(rcInterval); rcInterval = null; }
+    if (rcRafId) { cancelAnimationFrame(rcRafId); rcRafId = null; }
     rcCanAnswer = false;
     document.getElementById('rc-win').classList.add('hidden');
     document.getElementById('rc-lose').classList.add('hidden');
